@@ -2,10 +2,14 @@ import { useState } from 'react'
 
 const App = () => {
   const [persons, setPersons] = useState([
-    { name: 'Arto Hellas', number: '000' },
+    { name: 'Arto Hellas', number: '040-123456', id: 1 },
+    { name: 'Ada Lovelace', number: '39-44-5323523', id: 2 },
+    { name: 'Dan Abramov', number: '12-43-234345', id: 3 },
+    { name: 'Mary Poppendieck', number: '39-23-6423122', id: 4 },
   ])
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
+  const [newFilter, setNewFilter] = useState('')
 
   const handleInput = (e) => {
     e.preventDefault()
@@ -13,6 +17,8 @@ const App = () => {
       setNewName(e.target.value)
     } else if (e.target.name === 'phone') {
       setNewNumber(e.target.value)
+    } else if (e.target.name === 'filter') {
+      setNewFilter(e.target.value)
     }
   }
 
@@ -31,9 +37,26 @@ const App = () => {
     return persons.find((p) => p.name !== name)
   }
 
+  const filteredPersons = (filter) => {
+    return filter === ''
+      ? persons
+      : persons.filter(
+          (p) =>
+            p.name.toLowerCase().includes(filter.toLowerCase()) ||
+            p.number.includes(filter)
+        )
+  }
+
   return (
     <div>
-      <h2>Phonebook</h2>
+      <h1>Phonebook</h1>
+      <form>
+        <div>
+          filter shown with{' '}
+          <input name="filter" onChange={handleInput} value={newFilter} />
+        </div>
+      </form>
+      <h2>add a new contact</h2>
       <form onSubmit={handleSubmit}>
         <div>
           name: <input name="name" onChange={handleInput} value={newName} />
@@ -47,14 +70,22 @@ const App = () => {
         </div>
       </form>
       <h2>Numbers</h2>
-      {persons.map((person) => {
-        return (
-          <p>
-            {person.name} {person.number}
-          </p>
-        )
-      })}
+      <Persons persons={filteredPersons(newFilter)} />
     </div>
+  )
+}
+
+const Persons = (props) => {
+  return (
+    <ul style={{ listStyle: 'none', paddingLeft: '0' }}>
+      {props.persons.map((p) => (
+        <li key={p.id}>
+          <p>
+            {p.name} {p.number}
+          </p>
+        </li>
+      ))}
+    </ul>
   )
 }
 
