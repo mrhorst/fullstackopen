@@ -25,7 +25,10 @@ const App = () => {
   const handleSubmit = (e) => {
     e.preventDefault()
     if (isUnique(newName)) {
-      setPersons([...persons, { name: newName, number: newNumber }])
+      setPersons([
+        ...persons,
+        { name: newName, number: newNumber, id: persons.length + 1 },
+      ])
       setNewName('')
       setNewNumber('')
     } else {
