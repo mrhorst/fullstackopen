@@ -1,15 +1,18 @@
 import { useState } from 'react'
+import personService from './services/persons'
+import { useEffect } from 'react'
 
 const App = () => {
-  const [persons, setPersons] = useState([
-    { name: 'Arto Hellas', number: '040-123456', id: 1 },
-    { name: 'Ada Lovelace', number: '39-44-5323523', id: 2 },
-    { name: 'Dan Abramov', number: '12-43-234345', id: 3 },
-    { name: 'Mary Poppendieck', number: '39-23-6423122', id: 4 },
-  ])
+  const [persons, setPersons] = useState([])
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [newFilter, setNewFilter] = useState('')
+
+  const getAllPersons = () => {
+    personService.getAll().then((response) => setPersons(response))
+  }
+
+  useEffect(getAllPersons, [])
 
   const handleInput = (e) => {
     e.preventDefault()
@@ -25,10 +28,13 @@ const App = () => {
   const handleSubmit = (e) => {
     e.preventDefault()
     if (isUnique(newName)) {
-      setPersons([
-        ...persons,
-        { name: newName, number: newNumber, id: persons.length + 1 },
-      ])
+      const newPerson = {
+        name: newName,
+        number: newNumber,
+        id: (persons.length + 1).toString(),
+      }
+      setPersons([...persons, newPerson])
+      personService.create(newPerson)
       setNewName('')
       setNewNumber('')
     } else {
