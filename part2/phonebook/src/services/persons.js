@@ -14,8 +14,13 @@ const deletePerson = (personId) => {
   axios.delete(`${url}/${personId}`)
 }
 
+const updatePerson = (personId, updatedPerson) => {
+  return axios.put(`${url}/${personId}`, updatedPerson)
+}
+
 export default {
   create,
   getAll,
   deletePerson,
+  updatePerson,
 }

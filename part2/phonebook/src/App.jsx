@@ -50,12 +50,27 @@ const App = () => {
       setNewName('')
       setNewNumber('')
     } else {
-      alert(`${newName} is already present in the phonebook`)
+      try {
+        alert(
+          `${newName} is already present in the phonebook. Would you like to update the phone number?`
+        )
+        const person = persons.find((p) => p.name === newName)
+        personService
+          .updatePerson(person.id, { ...person, number: newNumber })
+          .then((response) =>
+            setPersons(
+              persons.map((p) => (p.id === person.id ? response.data : p))
+            )
+          )
+      } catch (e) {
+        console.error(e.message)
+      }
     }
   }
 
   const isUnique = (name) => {
-    return persons.find((p) => p.name !== name)
+    const p = persons.find((person) => person.name === name)
+    return p === undefined ? true : false
   }
 
   const filteredPersons = (filter) => {
