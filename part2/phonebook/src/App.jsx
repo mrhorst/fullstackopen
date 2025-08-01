@@ -12,6 +12,18 @@ const App = () => {
     personService.getAll().then((response) => setPersons(response))
   }
 
+  const handleDelete = (id) => {
+    const personToDelete = persons.find((p) => p.id === id)
+    try {
+      alert(`Are you sure you want to delete ${personToDelete.name}?`)
+      personService.deletePerson(personToDelete.id)
+    } catch (e) {
+      console.error(
+        `Could not delete.\npersonToDelete: ${personToDelete}\n${e.message}`
+      )
+    }
+  }
+
   useEffect(getAllPersons, [])
 
   const handleInput = (e) => {
@@ -69,7 +81,10 @@ const App = () => {
       />
 
       <h2>Numbers</h2>
-      <Persons persons={filteredPersons(newFilter)} />
+      <Persons
+        persons={filteredPersons(newFilter)}
+        handleDelete={handleDelete}
+      />
     </div>
   )
 }
@@ -111,9 +126,8 @@ const Persons = (props) => {
     <ul style={{ listStyle: 'none', paddingLeft: '0' }}>
       {props.persons.map((p) => (
         <li key={p.id}>
-          <p>
-            {p.name} {p.number}
-          </p>
+          {p.name} {p.number}{' '}
+          <button onClick={() => props.handleDelete(p.id)}>Delete</button>
         </li>
       ))}
     </ul>
