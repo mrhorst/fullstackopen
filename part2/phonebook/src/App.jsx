@@ -1,12 +1,14 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import personService from './services/persons'
-import { useEffect } from 'react'
+import Notification from './components/Notification'
+import './index.css'
 
 const App = () => {
   const [persons, setPersons] = useState([])
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [newFilter, setNewFilter] = useState('')
+  const [message, setMessage] = useState({ message: '', type: '' })
 
   const getAllPersons = () => {
     personService.getAll().then((response) => setPersons(response))
@@ -14,14 +16,36 @@ const App = () => {
 
   const handleDelete = (id) => {
     const personToDelete = persons.find((p) => p.id === id)
-    try {
-      alert(`Are you sure you want to delete ${personToDelete.name}?`)
-      personService.deletePerson(personToDelete.id)
-    } catch (e) {
-      console.error(
-        `Could not delete.\npersonToDelete: ${personToDelete}\n${e.message}`
-      )
-    }
+    alert(`Are you sure you want to delete ${personToDelete.name}?`)
+    personService
+      .deletePerson(personToDelete.id)
+      .then((response) => {
+        const filteredPersons = persons.filter((p) => p.id !== response.data.id)
+        setPersons([...filteredPersons])
+        handleNotification(
+          `Person ${response.data.name} deleted successfully!`,
+          'success'
+        )
+      })
+      .catch((e) => {
+        console.error(
+          `Could not delete.\npersonToDelete: `,
+          personToDelete,
+          `\n${e.message}`
+        )
+        handleNotification(
+          `Person ${personToDelete.name} has already been deleted..`,
+          'error'
+        )
+      })
+  }
+
+  const handleNotification = (message, type) => {
+    setMessage({
+      message,
+      type,
+    })
+    setTimeout(() => setMessage({ message: '', type: '' }), 2000)
   }
 
   useEffect(getAllPersons, [])
@@ -49,6 +73,10 @@ const App = () => {
       personService.create(newPerson)
       setNewName('')
       setNewNumber('')
+      handleNotification(
+        `Person ${newPerson.name} has been added successfully!`,
+        'success'
+      )
     } else {
       try {
         alert(
@@ -62,6 +90,10 @@ const App = () => {
               persons.map((p) => (p.id === person.id ? response.data : p))
             )
           )
+        handleNotification(
+          `Person ${person.name} has been updated successfully!`,
+          'success'
+        )
       } catch (e) {
         console.error(e.message)
       }
@@ -85,6 +117,7 @@ const App = () => {
 
   return (
     <div>
+      <Notification message={message.message} type={message.type} />
       <h1>Phonebook</h1>
       <Filter handleInput={handleInput} newFilter={newFilter} />
       <h3>add a new contact</h3>

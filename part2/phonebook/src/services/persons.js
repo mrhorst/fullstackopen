@@ -11,7 +11,7 @@ const getAll = () => {
 }
 
 const deletePerson = (personId) => {
-  axios.delete(`${url}/${personId}`)
+  return axios.delete(`${url}/${personId}`)
 }
 
 const updatePerson = (personId, updatedPerson) => {
