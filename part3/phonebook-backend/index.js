@@ -50,3 +50,9 @@ app.get('/api/persons/:id', (req, res) => {
     res.status(404).end()
   }
 })
+
+app.delete('/api/persons/:id', (req, res) => {
+  const id = req.params.id
+  const persons = entries.filter((person) => person.id !== id)
+  res.status(204).end()
+})
