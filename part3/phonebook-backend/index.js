@@ -7,6 +7,8 @@ app.listen(PORT, () => {
   console.log(`Listening on port: ${PORT}`)
 })
 
+app.use(express.json())
+
 const entries = [
   {
     id: '1',
@@ -55,4 +57,22 @@ app.delete('/api/persons/:id', (req, res) => {
   const id = req.params.id
   const persons = entries.filter((person) => person.id !== id)
   res.status(204).end()
+})
+
+const generateId = () => {
+  return Math.round(Math.random() * 6425172456)
+}
+
+app.post('/api/persons', (req, res) => {
+  const { name, number } = req.body
+
+  if (!name || !number) {
+    return res.status(400).json({
+      error: 'content missing',
+    })
+  }
+  const person = { name, number, id: generateId() }
+  const persons = [...entries, person]
+
+  res.json(person)
 })
