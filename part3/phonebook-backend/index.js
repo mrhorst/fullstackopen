@@ -39,3 +39,14 @@ app.get('/info', (req, res) => {
   const now = new Date().toUTCString()
   res.send(`<p>Phonebook has info for ${numPersons} people</p><p>${now}</p>`)
 })
+
+app.get('/api/persons/:id', (req, res) => {
+  const id = req.params.id
+  const person = entries.find((person) => person.id === id)
+
+  if (person) {
+    res.json(person)
+  } else {
+    res.status(404).end()
+  }
+})
