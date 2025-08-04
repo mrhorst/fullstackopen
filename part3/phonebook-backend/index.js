@@ -71,6 +71,17 @@ app.post('/api/persons', (req, res) => {
       error: 'content missing',
     })
   }
+
+  const isNamePresent = entries.find(
+    (person) => person.name.toLowerCase() === name.toLowerCase()
+  )
+
+  if (isNamePresent) {
+    return res.status(409).json({
+      error: 'name already exists.',
+    })
+  }
+
   const person = { name, number, id: generateId() }
   const persons = [...entries, person]
 
