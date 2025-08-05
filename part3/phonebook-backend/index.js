@@ -10,7 +10,14 @@ app.listen(PORT, () => {
 })
 
 app.use(express.json())
-app.use(morgan('tiny'))
+
+morgan.token('tony', (req, res) => {
+  return JSON.stringify(req.body)
+})
+
+const tony =
+  ':method :url :status :res[content-length] - :response-time ms :tony'
+app.use(morgan(tony))
 
 const entries = [
   {
