@@ -46,15 +46,15 @@ app.post('/api/persons', (req, res) => {
     })
   }
 
-  const isNamePresent = entries.find(
-    (person) => person.name.toLowerCase() === name.toLowerCase()
-  )
+  // const isNamePresent = entries.find(
+  //   (person) => person.name.toLowerCase() === name.toLowerCase()
+  // )
 
-  if (isNamePresent) {
-    return res.status(409).json({
-      error: 'name already exists.',
-    })
-  }
+  // if (isNamePresent) {
+  //   return res.status(409).json({
+  //     error: 'name already exists.',
+  //   })
+  // }
 
   const person = new Person({ name, number })
 
