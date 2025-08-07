@@ -16,16 +16,17 @@ const tony =
   ':method :url :status :res[content-length] - :response-time ms :tony'
 app.use(morgan(tony))
 
-app.get('/api/persons', (request, respons) => {
-  Person.find({}).then((persons) => respons.json(persons))
+app.get('/api/persons', (request, response) => {
+  Person.find({}).then((persons) => response.json(persons))
 })
 
-app.get('/info', (request, respons) => {
-  const numPersons = entries.length
-  const now = new Date().toUTCString()
-  respons.send(
-    `<p>Phonebook has info for ${numPersons} people</p><p>${now}</p>`
-  )
+app.get('/info', (request, response) => {
+  Person.find({}).then((persons) => {
+    const now = new Date().toUTCString()
+    response.send(
+      `<p>Phonebook has info for ${numPersons} people</p><p>${now}</p>`
+    )
+  })
 })
 
 app.get('/api/persons/:id', (request, response, next) => {
@@ -35,7 +36,7 @@ app.get('/api/persons/:id', (request, response, next) => {
     .catch((error) => next(error))
 })
 
-app.delete('/api/persons/:id', (request, respons) => {
+app.delete('/api/persons/:id', (request, response) => {
   Person.findByIdAndDelete(request.params.id).then((person) => {
     console.log(`deleted ${person}`)
     response.status(204).end()
