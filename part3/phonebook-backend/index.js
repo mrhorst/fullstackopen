@@ -52,6 +52,23 @@ app.post('/api/persons', (req, res) => {
   person.save().then((savedPerson) => res.json(savedPerson))
 })
 
+app.put('/api/persons/:id', (request, response, next) => {
+  const { name, number } = request.body
+  Person.findById(request.params.id)
+    .then((person) => {
+      if (!person) {
+        return response.status(404).end()
+      }
+
+      person.number = number
+
+      person.save().then((savedPerson) => {
+        response.json(savedPerson)
+      })
+    })
+    .catch((error) => next(error))
+})
+
 const errorHandler = (error, req, res, next) => {
   console.error(`Error: ${error.message}`)
 
