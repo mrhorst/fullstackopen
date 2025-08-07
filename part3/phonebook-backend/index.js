@@ -47,20 +47,18 @@ app.post('/api/persons', (req, res) => {
     })
   }
 
-  // const isNamePresent = entries.find(
-  //   (person) => person.name.toLowerCase() === name.toLowerCase()
-  // )
-
-  // if (isNamePresent) {
-  //   return res.status(409).json({
-  //     error: 'name already exists.',
-  //   })
-  // }
-
   const person = new Person({ name, number })
 
   person.save().then((savedPerson) => res.json(savedPerson))
 })
+
+const errorHandler = (error, req, res, next) => {
+  console.error(`Error: ${error.message}`)
+
+  next(error)
+}
+
+app.use(errorHandler)
 
 const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
