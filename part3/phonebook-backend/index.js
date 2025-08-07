@@ -53,7 +53,7 @@ app.post('/api/persons', (req, res) => {
 })
 
 app.put('/api/persons/:id', (request, response, next) => {
-  const { name, number } = request.body
+  const { number } = request.body
   Person.findById(request.params.id)
     .then((person) => {
       if (!person) {
