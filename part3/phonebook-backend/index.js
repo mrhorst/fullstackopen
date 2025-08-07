@@ -20,13 +20,15 @@ app.get('/api/persons', (request, response) => {
   Person.find({}).then((persons) => response.json(persons))
 })
 
-app.get('/info', (request, response) => {
-  Person.find({}).then((persons) => {
-    const now = new Date().toUTCString()
-    response.send(
-      `<p>Phonebook has info for ${numPersons} people</p><p>${now}</p>`
-    )
-  })
+app.get('/info', (request, response, next) => {
+  Person.find({})
+    .then((persons) => {
+      const now = new Date().toUTCString()
+      response.send(
+        `<p>Phonebook has info for ${persons.length} people</p><p>${now}</p>`
+      )
+    })
+    .catch((error) => next(error))
 })
 
 app.get('/api/persons/:id', (request, response, next) => {
