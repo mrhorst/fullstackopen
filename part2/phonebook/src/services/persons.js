@@ -3,7 +3,7 @@ import axios from 'axios'
 const url = '/api/persons'
 
 const create = (person) => {
-  axios.post(url, person).then((response) => response.data)
+  return axios.post(url, person).then((response) => response.data)
 }
 
 const getAll = () => {

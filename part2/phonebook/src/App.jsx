@@ -67,16 +67,21 @@ const App = () => {
       const newPerson = {
         name: newName,
         number: newNumber,
-        id: (persons.length + 1).toString(),
       }
-      setPersons([...persons, newPerson])
-      personService.create(newPerson)
+      personService
+        .create(newPerson)
+        .then((createdPerson) => {
+          handleNotification(
+            `Person ${createdPerson.name} has been added successfully!`,
+            'success'
+          )
+          setPersons([...persons, newPerson])
+        })
+        .catch((error) => {
+          handleNotification(`Oops! ${error.response.data.error}`, 'error')
+        })
       setNewName('')
       setNewNumber('')
-      handleNotification(
-        `Person ${newPerson.name} has been added successfully!`,
-        'success'
-      )
     } else {
       try {
         alert(
@@ -173,7 +178,7 @@ const Persons = (props) => {
   return (
     <ul style={{ listStyle: 'none', paddingLeft: '0' }}>
       {props.persons.map((p) => (
-        <li key={p.id}>
+        <li key={p.name}>
           {p.name} {p.number}{' '}
           <button onClick={() => props.handleDelete(p.id)}>Delete</button>
         </li>
