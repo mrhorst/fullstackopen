@@ -45,7 +45,7 @@ app.delete('/api/persons/:id', (request, response) => {
   })
 })
 
-app.post('/api/persons', (request, response) => {
+app.post('/api/persons', (request, response, next) => {
   const { name, number } = request.body
 
   if (!name || !number) {
@@ -56,11 +56,14 @@ app.post('/api/persons', (request, response) => {
 
   const person = new Person({ name, number })
 
-  person.save().then((savedPerson) => response.json(savedPerson))
+  person
+    .save()
+    .then((savedPerson) => response.json(savedPerson))
+    .catch((error) => next(error))
 })
 
 app.put('/api/persons/:id', (request, response, next) => {
-  const { number } = request.body
+  const { number, name } = request.body
   Person.findById(request.params.id)
     .then((person) => {
       if (!person) {
@@ -68,6 +71,7 @@ app.put('/api/persons/:id', (request, response, next) => {
       }
 
       person.number = number
+      person.name = name
 
       person.save().then((savedPerson) => {
         response.json(savedPerson)
@@ -77,7 +81,9 @@ app.put('/api/persons/:id', (request, response, next) => {
 })
 
 const errorHandler = (error, request, response, next) => {
-  console.error(`Error: ${error.message}`)
+  if (error.name === 'ValidationError') {
+    response.status(400).json({ error: error.message })
+  }
 
   next(error)
 }
