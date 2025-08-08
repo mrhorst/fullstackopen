@@ -8,7 +8,7 @@ const app = express()
 app.use(express.json())
 app.use(express.static('dist'))
 
-morgan.token('tony', (request, response) => {
+morgan.token('tony', (request) => {
   return JSON.stringify(request.body)
 })
 
@@ -33,7 +33,7 @@ app.get('/info', (request, response, next) => {
 
 app.get('/api/persons/:id', (request, response, next) => {
   const id = request.params.id
-  Person.findById(request.params.id)
+  Person.findById(id)
     .then((person) => response.json(person))
     .catch((error) => next(error))
 })

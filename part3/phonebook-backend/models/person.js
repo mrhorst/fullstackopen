@@ -8,11 +8,11 @@ console.log(`connecting to ${url}`)
 
 mongoose
   .connect(url)
-  .then((result) =>
+  .then(() => {
     console.log(
       '*************************\n* connected to MongoDB! *\n*************************\n'
     )
-  )
+  })
   .catch((e) =>
     console.error(`error connecting to the database:\n\n${e.message}`)
   )
