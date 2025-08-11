@@ -1,6 +1,12 @@
-const { test, describe } = require('node:test')
+const { test, after } = require('node:test')
+const mongoose = require('mongoose')
+const supertest = require('supertest')
+const app = require('../app')
+
 const assert = require('node:assert')
 const listHelper = require('../utils/list_helper')
+
+const api = supertest(app)
 
 test('dummy returns one', () => {
   const blogs = []
@@ -125,4 +131,17 @@ test('return 0 if list of blogs is empty', () => {
 test('return the least favorite blog', () => {
   const result = listHelper.leastFavorite(listWithFiveBlogs)
   assert.deepStrictEqual(result, listWithFiveBlogs[4])
+})
+
+test('GET returns the correct amount of blog posts', async () => {
+  const response = await api
+    .get('/api/blogs')
+    .expect(200)
+    .expect('Content-Type', /application\/json/)
+
+  assert.strictEqual(response.body.length, 1)
+})
+
+after(async () => {
+  await mongoose.connection.close()
 })
