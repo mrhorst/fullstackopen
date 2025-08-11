@@ -142,6 +142,15 @@ test('GET returns the correct amount of blog posts', async () => {
   assert.strictEqual(response.body.length, 1)
 })
 
+test('prop id is the unique identifier for blogs', async () => {
+  const response = await api.get('/api/blogs').expect(200)
+
+  const blog = response.body[0]
+
+  assert.ok('id' in blog, 'id NOT present in blogs')
+  assert.ok(!('_id' in blog), '_id IS present in blog')
+})
+
 after(async () => {
   await mongoose.connection.close()
 })
