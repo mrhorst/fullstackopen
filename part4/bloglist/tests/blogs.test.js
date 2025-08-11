@@ -172,6 +172,27 @@ test('POST to /api/blogs successfully creates a blog', async () => {
   assert.strictEqual(response.body.likes, blog.likes)
 })
 
+test('if the prop `likes` is missing from the request, default to 0', async () => {
+  const blog = {
+    title: 'blog without likes prop',
+    author: 'likeless author',
+    url: 'nolikes.com',
+  }
+  const response = await api.post('/api/blogs').send(blog).expect(201)
+  assert.strictEqual(response.body.likes, 0)
+})
+
+test('if the prop `likes` is present in request, keep it', async () => {
+  const blog = {
+    title: 'blog with likes prop',
+    author: 'liked author',
+    url: 'yeslikes.com',
+    likes: 3,
+  }
+  const response = await api.post('/api/blogs').send(blog).expect(201)
+  assert.strictEqual(response.body.likes, blog.likes)
+})
+
 after(async () => {
   await mongoose.connection.close()
 })
