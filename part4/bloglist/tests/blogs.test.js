@@ -193,6 +193,22 @@ test('if the prop `likes` is present in request, keep it', async () => {
   assert.strictEqual(response.body.likes, blog.likes)
 })
 
+test('if title is missing, return 400', async () => {
+  const blog = {
+    author: 'author without title',
+    url: 'notitle.com',
+  }
+  await api.post('/api/blogs').send(blog).expect(400)
+})
+
+test('if url is missing, return 400', async () => {
+  const blog = {
+    title: 'no url',
+    author: 'author without url',
+  }
+  await api.post('/api/blogs').send(blog).expect(400)
+})
+
 after(async () => {
   await mongoose.connection.close()
 })
