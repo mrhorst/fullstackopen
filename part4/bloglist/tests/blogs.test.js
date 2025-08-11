@@ -151,6 +151,27 @@ test('prop id is the unique identifier for blogs', async () => {
   assert.ok(!('_id' in blog), '_id IS present in blog')
 })
 
+test('POST to /api/blogs successfully creates a blog', async () => {
+  const blog = {
+    title: 'Created from test',
+    author: 'mrhorst',
+    url: 'frompost.com',
+    likes: 2,
+  }
+  const blogsBeforePost = await api.get('/api/blogs')
+  const response = await api.post('/api/blogs').send(blog).expect(201)
+  const blogsAfterPost = await api.get('/api/blogs')
+
+  const lengthBefore = blogsBeforePost.body.length
+  const lengthAfter = blogsAfterPost.body.length
+
+  assert.strictEqual(lengthAfter, lengthBefore + 1)
+  assert.strictEqual(response.body.title, blog.title)
+  assert.strictEqual(response.body.url, blog.url)
+  assert.strictEqual(response.body.author, blog.author)
+  assert.strictEqual(response.body.likes, blog.likes)
+})
+
 after(async () => {
   await mongoose.connection.close()
 })
