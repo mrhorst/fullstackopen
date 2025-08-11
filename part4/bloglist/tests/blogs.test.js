@@ -209,6 +209,12 @@ test('if url is missing, return 400', async () => {
   await api.post('/api/blogs').send(blog).expect(400)
 })
 
+test('we can delete a single blog post', async () => {
+  const blogs = await api.get('/api/blogs')
+  const firstBlog = blogs.body[0]
+  await api.delete(`/api/blogs/${firstBlog.id}`).expect(204)
+})
+
 after(async () => {
   await mongoose.connection.close()
 })
