@@ -215,6 +215,13 @@ test('we can delete a single blog post', async () => {
   await api.delete(`/api/blogs/${firstBlog.id}`).expect(204)
 })
 
+test('we can update the "likes" prop of a blog post', async () => {
+  const blogs = await api.get('/api/blogs')
+  const firstBlog = blogs.body[0]
+  firstBlog.likes += 1
+  await api.put(`/api/blogs/${firstBlog.id}`).send(firstBlog).expect(200)
+})
+
 after(async () => {
   await mongoose.connection.close()
 })
