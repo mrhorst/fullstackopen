@@ -1,4 +1,3 @@
-const jwt = require('jsonwebtoken')
 const blogsRouter = require('express').Router()
 const Blog = require('../models/blog')
 const User = require('../models/user')
@@ -10,12 +9,11 @@ blogsRouter.get('/', async (request, response) => {
 
 blogsRouter.post('/', async (request, response) => {
   const body = new Blog(request.body)
-  const decodedToken = jwt.verify(request.token, process.env.SECRET)
 
-  if (!decodedToken) {
+  if (!request.user) {
     return response.status(401).json({ error: 'invalid token' })
   }
-  const user = await User.findById(decodedToken.id)
+  const user = request.user
   console.log(user)
 
   if (!body.title) {
@@ -46,12 +44,8 @@ blogsRouter.delete('/:id', async (request, response, next) => {
   try {
     const blog = await Blog.findById(request.params.id)
     const blogOwner = blog.user._id.toString()
-    const decodedToken = jwt.verify(request.token, process.env.SECRET)
 
-    console.log('BLOG OWNER:', blogOwner)
-    console.log('DECODED TOKEN:', decodedToken)
-
-    if (blogOwner !== decodedToken.id) {
+    if (blogOwner !== request.user.id) {
       return response
         .status(403)
         .json({ error: 'you do not own this resource' })
