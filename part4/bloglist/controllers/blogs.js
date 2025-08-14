@@ -42,9 +42,26 @@ blogsRouter.post('/', async (request, response) => {
   response.status(201).json(savedBlog)
 })
 
-blogsRouter.delete('/:id', async (request, response) => {
-  await Blog.findByIdAndDelete(request.params.id)
-  response.status(204).end()
+blogsRouter.delete('/:id', async (request, response, next) => {
+  try {
+    const blog = await Blog.findById(request.params.id)
+    const blogOwner = blog.user._id.toString()
+    const decodedToken = jwt.verify(request.token, process.env.SECRET)
+
+    console.log('BLOG OWNER:', blogOwner)
+    console.log('DECODED TOKEN:', decodedToken)
+
+    if (blogOwner !== decodedToken.id) {
+      return response
+        .status(403)
+        .json({ error: 'you do not own this resource' })
+    }
+
+    await Blog.findByIdAndDelete(request.params.id)
+    response.status(204).end()
+  } catch (e) {
+    next(e)
+  }
 })
 
 blogsRouter.put('/:id', async (request, response) => {

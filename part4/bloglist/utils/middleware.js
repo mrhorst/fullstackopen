@@ -6,10 +6,14 @@ const unknownEndpoint = (request, response) => {
 
 const errorHandler = (error, request, response, next) => {
   if (error.name === 'ValidationError') {
-    response.status(400).send({ error: error.message })
+    response.status(400).json({ error: error.message })
+  } else if (error.name === 'JsonWebTokenError') {
+    response.status(403).json({ error: error.message })
+  } else if (error.name === 'CastError') {
+    response.status(400).json({ error: 'malformatted id' })
   }
 
-  logger.error(error.message)
+  logger.error('OUR MIDDLEWARE DID NOT CATCH THIS ONE. PLEASE FIX:', error)
 
   next(error)
 }
