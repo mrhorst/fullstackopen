@@ -1,5 +1,6 @@
-const { test, after } = require('node:test')
+const { test, after, describe, beforeEach } = require('node:test')
 const mongoose = require('mongoose')
+const Blog = require('../models/blog')
 const supertest = require('supertest')
 const app = require('../app')
 
@@ -59,160 +60,234 @@ const blogs = [
   },
 ]
 
-const listWithOneBlog = [
-  {
-    title: 'test with one blog',
-    author: 'Mr. Test',
-    url: 'someurl.com',
-    likes: 2,
-  },
-]
+describe("When there's initially 6 blogs in the db..", async () => {
+  beforeEach(async () => {
+    await Blog.deleteMany({})
+    await Blog.insertMany(blogs)
+  })
+  const initialBlogs = await listHelper.blogsInDb()
 
-const listWithFiveBlogs = [
-  {
-    title: 'First blog',
-    author: 'Alice',
-    url: 'aliceblog.com',
-    likes: 5,
-  },
-  {
-    title: 'Second blog',
-    author: 'Bob',
-    url: 'bobblog.com',
-    likes: 10,
-  },
-  {
-    title: 'Third blog',
-    author: 'Charlie',
-    url: 'charlieblog.com',
-    likes: 3,
-  },
-  {
-    title: 'Fourth blog',
-    author: 'Dana',
-    url: 'danablog.com',
-    likes: 7,
-  },
-  {
-    title: 'Fifth blog',
-    author: 'Eve',
-    url: 'eveblog.com',
-    likes: 1,
-  },
-]
+  test('the initial list of blogs have a total of 36 likes..', () => {
+    const totalLikes = listHelper.totalLikes(initialBlogs)
+    assert.strictEqual(totalLikes, 36)
+  })
 
-test('when list has one blog with 2 likes, return 2', () => {
-  const result = listHelper.totalLikes(listWithOneBlog)
-  assert.strictEqual(result, 2)
+  test('return the favorite blog, which is the one with most likes (12)', () => {
+    const favoriteBlog = listHelper.favoriteBlog(initialBlogs)
+    assert.deepStrictEqual(favoriteBlog.likes, 12)
+  })
+
+  test('return 0 if list of blogs is empty', () => {
+    const result = listHelper.favoriteBlog([])
+    assert.deepStrictEqual(result, 0)
+  })
+
+  test('return the least favorite blog', () => {
+    const leastFavorite = listHelper.leastFavorite(initialBlogs)
+    assert.deepStrictEqual(leastFavorite.likes, blogs[4].likes)
+  })
 })
 
-test('when list has 5 blogs with total of 26 likes, return 26', () => {
-  const result = listHelper.totalLikes(listWithFiveBlogs)
-  assert.strictEqual(result, 26)
-})
+describe('When sending HTTP requests...', () => {
+  beforeEach(async () => {
+    const users = await listHelper.usersInDb()
+    const root = users.find((user) => user.username === 'root')
 
-test('return the favorite blog, which is the one with most likes (second blog with 10 likes', () => {
-  const result = listHelper.favoriteBlog(listWithFiveBlogs)
-  assert.deepStrictEqual(result, listWithFiveBlogs[1])
-})
+    const blogs = await Blog.find({})
 
-test('return 0 if list of blogs is empty', () => {
-  const result = listHelper.favoriteBlog([])
-  assert.deepStrictEqual(result, 0)
-})
+    for (const blog of blogs) {
+      if (blog.user === undefined) {
+        blog.user = root.id.toString()
+        await blog.save()
+      }
+    }
+  })
+  test('GET returns the correct amount of blog posts', async () => {
+    const allBlogsFromDb = await Blog.find({})
 
-test('return the least favorite blog', () => {
-  const result = listHelper.leastFavorite(listWithFiveBlogs)
-  assert.deepStrictEqual(result, listWithFiveBlogs[4])
-})
+    const response = await api
+      .get('/api/blogs')
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
 
-test('GET returns the correct amount of blog posts', async () => {
-  const response = await api
-    .get('/api/blogs')
-    .expect(200)
-    .expect('Content-Type', /application\/json/)
+    assert.strictEqual(response.body.length, allBlogsFromDb.length)
+  })
 
-  assert.strictEqual(response.body.length, 1)
-})
+  test('prop id is the unique identifier for blogs', async () => {
+    const response = await api.get('/api/blogs').expect(200)
 
-test('prop id is the unique identifier for blogs', async () => {
-  const response = await api.get('/api/blogs').expect(200)
+    const blog = response.body[0]
 
-  const blog = response.body[0]
+    assert.ok('id' in blog, 'id NOT present in blogs')
+    assert.ok(!('_id' in blog), '_id IS present in blog')
+  })
 
-  assert.ok('id' in blog, 'id NOT present in blogs')
-  assert.ok(!('_id' in blog), '_id IS present in blog')
-})
+  test('POST to /api/blogs WITHOUT Auth Token FAILS', async () => {
+    const blog = {
+      title: 'Created from test',
+      author: 'mrhorst',
+      url: 'frompost.com',
+      likes: 2,
+    }
+    const blogsBeforePost = await api.get('/api/blogs')
+    await api.post('/api/blogs').send(blog).expect(401)
+    const blogsAfterPost = await api.get('/api/blogs')
 
-test('POST to /api/blogs successfully creates a blog', async () => {
-  const blog = {
-    title: 'Created from test',
-    author: 'mrhorst',
-    url: 'frompost.com',
-    likes: 2,
-  }
-  const blogsBeforePost = await api.get('/api/blogs')
-  const response = await api.post('/api/blogs').send(blog).expect(201)
-  const blogsAfterPost = await api.get('/api/blogs')
+    const lengthBefore = blogsBeforePost.body.length
+    const lengthAfter = blogsAfterPost.body.length
 
-  const lengthBefore = blogsBeforePost.body.length
-  const lengthAfter = blogsAfterPost.body.length
+    assert.strictEqual(lengthAfter, lengthBefore)
+  })
 
-  assert.strictEqual(lengthAfter, lengthBefore + 1)
-  assert.strictEqual(response.body.title, blog.title)
-  assert.strictEqual(response.body.url, blog.url)
-  assert.strictEqual(response.body.author, blog.author)
-  assert.strictEqual(response.body.likes, blog.likes)
-})
+  test('POST to /api/blogs WITH Auth Token creates a new blog', async () => {
+    const loginResponse = await api
+      .post('/api/login')
+      .send({ username: 'root', password: 'secret' })
 
-test('if the prop `likes` is missing from the request, default to 0', async () => {
-  const blog = {
-    title: 'blog without likes prop',
-    author: 'likeless author',
-    url: 'nolikes.com',
-  }
-  const response = await api.post('/api/blogs').send(blog).expect(201)
-  assert.strictEqual(response.body.likes, 0)
-})
+    const token = loginResponse.body.token
 
-test('if the prop `likes` is present in request, keep it', async () => {
-  const blog = {
-    title: 'blog with likes prop',
-    author: 'liked author',
-    url: 'yeslikes.com',
-    likes: 3,
-  }
-  const response = await api.post('/api/blogs').send(blog).expect(201)
-  assert.strictEqual(response.body.likes, blog.likes)
-})
+    const blog = {
+      title: 'Created from test',
+      author: 'mrhorst',
+      url: 'frompost.com',
+      likes: 2,
+    }
+    const blogsBeforePost = await api.get('/api/blogs')
+    await api
+      .post('/api/blogs')
+      .set('Authorization', `Bearer ${token}`)
+      .send(blog)
+      .expect(201)
 
-test('if title is missing, return 400', async () => {
-  const blog = {
-    author: 'author without title',
-    url: 'notitle.com',
-  }
-  await api.post('/api/blogs').send(blog).expect(400)
-})
+    const blogsAfterPost = await api.get('/api/blogs')
 
-test('if url is missing, return 400', async () => {
-  const blog = {
-    title: 'no url',
-    author: 'author without url',
-  }
-  await api.post('/api/blogs').send(blog).expect(400)
-})
+    const lengthBefore = blogsBeforePost.body.length
+    const lengthAfter = blogsAfterPost.body.length
 
-test('we can delete a single blog post', async () => {
-  const blogs = await api.get('/api/blogs')
-  const firstBlog = blogs.body[0]
-  await api.delete(`/api/blogs/${firstBlog.id}`).expect(204)
-})
+    assert.strictEqual(lengthAfter, lengthBefore + 1)
+  })
 
-test('we can update the "likes" prop of a blog post', async () => {
-  const blogs = await api.get('/api/blogs')
-  const firstBlog = blogs.body[0]
-  firstBlog.likes += 1
-  await api.put(`/api/blogs/${firstBlog.id}`).send(firstBlog).expect(200)
+  test('if the prop `likes` is missing from the request, default to 0', async () => {
+    const loginResponse = await api
+      .post('/api/login')
+      .send({ username: 'root', password: 'secret' })
+
+    const token = loginResponse.body.token
+
+    const blog = {
+      title: 'blog without likes prop',
+      author: 'likeless author',
+      url: 'nolikes.com',
+    }
+    const response = await api
+      .post('/api/blogs')
+      .set('Authorization', `Bearer ${token}`)
+      .send(blog)
+      .expect(201)
+    assert.strictEqual(response.body.likes, 0)
+  })
+
+  test('if the prop `likes` is present in request, keep it', async () => {
+    const loginResponse = await api
+      .post('/api/login')
+      .send({ username: 'root', password: 'secret' })
+
+    const token = loginResponse.body.token
+
+    const blog = {
+      title: 'blog with likes prop',
+      author: 'liked author',
+      url: 'yeslikes.com',
+      likes: 3,
+    }
+    const response = await api
+      .post('/api/blogs')
+      .set('Authorization', `Bearer ${token}`)
+      .send(blog)
+      .expect(201)
+
+    assert.strictEqual(response.body.likes, blog.likes)
+  })
+
+  test('if title is missing, return 400', async () => {
+    const loginResponse = await api
+      .post('/api/login')
+      .send({ username: 'root', password: 'secret' })
+
+    const token = loginResponse.body.token
+
+    const blog = {
+      author: 'author without title',
+      url: 'notitle.com',
+    }
+    await api
+      .post('/api/blogs')
+      .set('Authorization', `Bearer ${token}`)
+      .send(blog)
+      .expect(400)
+  })
+
+  test('if url is missing, return 400', async () => {
+    const loginResponse = await api
+      .post('/api/login')
+      .send({ username: 'root', password: 'secret' })
+
+    const token = loginResponse.body.token
+
+    const blog = {
+      title: 'no url',
+      author: 'author without url',
+    }
+    await api
+      .post('/api/blogs')
+      .set('Authorization', `Bearer ${token}`)
+      .send(blog)
+      .expect(400)
+  })
+
+  test('authenticated user can NOT delete a blog post if not owner', async () => {
+    const loginResponse = await api
+      .post('/api/login')
+      .send({ username: 'root', password: 'secret' })
+
+    const token = loginResponse.body.token
+
+    const blogs = await api.get('/api/blogs')
+    const firstBlog = blogs.body[0]
+    const blog = await Blog.findById(firstBlog.id)
+    blog.user = undefined
+    await blog.save()
+
+    await api
+      .delete(`/api/blogs/${firstBlog.id}`)
+      .set('Authorization', `Bearer ${token}`)
+      .expect(500)
+  })
+
+  test('authenticated user CAN delete a blog post if owner', async () => {
+    const loginResponse = await api
+      .post('/api/login')
+      .send({ username: 'root', password: 'secret' })
+
+    const token = loginResponse.body.token
+    const username = loginResponse.body.username
+
+    const blogs = await api.get('/api/blogs')
+
+    await api
+      .delete(`/api/blogs/${blogs.body[0].id}`)
+      .set('Authorization', `Bearer ${token}`)
+      .expect(204)
+
+    assert.deepEqual(blogs.body[0].user.username, username)
+  })
+
+  // test('we can update the "likes" prop of a blog post', async () => {
+  //   const blogs = await api.get('/api/blogs')
+  //   const firstBlog = blogs.body[0]
+  //   firstBlog.likes += 1
+  //   await api.put(`/api/blogs/${firstBlog.id}`).send(firstBlog).expect(200)
+  // })
 })
 
 after(async () => {

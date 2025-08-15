@@ -13,8 +13,9 @@ blogsRouter.post('/', async (request, response) => {
   if (!request.user) {
     return response.status(401).json({ error: 'invalid token' })
   }
-  const user = request.user
-  console.log(user)
+  const authenticatedUser = request.user
+  // console.log(user)
+  const user = await User.findById(authenticatedUser.id)
 
   if (!body.title) {
     response.status(400).send({ error: 'title is missing' })
@@ -43,6 +44,11 @@ blogsRouter.post('/', async (request, response) => {
 blogsRouter.delete('/:id', async (request, response, next) => {
   try {
     const blog = await Blog.findById(request.params.id)
+
+    if (!blog.user) {
+      return response.status(500).json({ error: 'this blog has no owner' })
+    }
+
     const blogOwner = blog.user._id.toString()
 
     if (blogOwner !== request.user.id) {
