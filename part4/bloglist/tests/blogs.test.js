@@ -73,6 +73,22 @@ describe("When there's initially 6 blogs in the db..", async () => {
     assert.strictEqual(totalLikes, 36)
   })
 
+  test('author with most blogs', () => {
+    const authorWithMostBlogs = listHelper.authorWithMostBlogs(initialBlogs)
+    assert.deepStrictEqual(authorWithMostBlogs, {
+      author: 'Robert C. Martin',
+      blogs: 3,
+    })
+  })
+
+  test('author with most likes', () => {
+    const authorWithMostLikes = listHelper.authorWithMostLikes(initialBlogs)
+    assert.deepStrictEqual(authorWithMostLikes, {
+      author: 'Edsger W. Dijkstra',
+      likes: 17,
+    })
+  })
+
   test('return the favorite blog, which is the one with most likes (12)', () => {
     const favoriteBlog = listHelper.favoriteBlog(initialBlogs)
     assert.deepStrictEqual(favoriteBlog.likes, 12)

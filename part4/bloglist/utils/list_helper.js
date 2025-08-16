@@ -28,6 +28,36 @@ const leastFavorite = (blogs) => {
   return blogs.reduce((acc, cur) => (acc.likes < cur.likes ? acc : cur), 0)
 }
 
+const authorWithMostBlogs = (blogs) => {
+  const blogsPerAuthor = blogs.reduce((acc, cur) => {
+    acc[cur.author] = (acc[cur.author] || 0) + 1
+    return acc
+  }, {})
+
+  const arrayOfAuthors = Object.entries(blogsPerAuthor)
+
+  const [author, blogsCount] = arrayOfAuthors.reduce((max, cur) => {
+    return cur[1] > max[1] ? cur : max
+  })
+
+  return { author, blogs: blogsCount }
+}
+
+const authorWithMostLikes = (blogs) => {
+  const likesPerAuthor = blogs.reduce((acc, cur) => {
+    acc[cur.author] = (acc[cur.author] || 0) + cur.likes
+    return acc
+  }, {})
+
+  const arrayWithLikes = Object.entries(likesPerAuthor)
+
+  const [author, likes] = arrayWithLikes.reduce((max, cur) => {
+    return max[1] > cur[1] ? max : cur
+  })
+
+  return { author, likes }
+}
+
 /** Users */
 
 const usersInDb = async () => {
@@ -41,4 +71,6 @@ module.exports = {
   leastFavorite,
   usersInDb,
   blogsInDb,
+  authorWithMostBlogs,
+  authorWithMostLikes,
 }
