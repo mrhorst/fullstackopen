@@ -43,6 +43,10 @@ blogsRouter.post('/', async (request, response) => {
 
 blogsRouter.delete('/:id', async (request, response, next) => {
   try {
+    if (!request.user) {
+      return response.status(401).json({ error: 'invalid token' })
+    }
+
     const blog = await Blog.findById(request.params.id)
 
     if (!blog.user) {
@@ -65,11 +69,14 @@ blogsRouter.delete('/:id', async (request, response, next) => {
 })
 
 blogsRouter.put('/:id', async (request, response) => {
+  if (!request.user) {
+    return response.status(401).json({ error: 'invalid token' })
+  }
   const { likes } = request.body
   const blog = await Blog.findById(request.params.id)
   blog.likes = likes
   await blog.save()
-  response.json(blog)
+  response.status(201).json(blog)
 })
 
 module.exports = blogsRouter

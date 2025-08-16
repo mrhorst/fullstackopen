@@ -1,6 +1,7 @@
 const { test, after, describe, beforeEach } = require('node:test')
 const mongoose = require('mongoose')
 const Blog = require('../models/blog')
+const User = require('../models/user')
 const supertest = require('supertest')
 const app = require('../app')
 
@@ -282,12 +283,35 @@ describe('When sending HTTP requests...', () => {
     assert.deepEqual(blogs.body[0].user.username, username)
   })
 
-  // test('we can update the "likes" prop of a blog post', async () => {
-  //   const blogs = await api.get('/api/blogs')
-  //   const firstBlog = blogs.body[0]
-  //   firstBlog.likes += 1
-  //   await api.put(`/api/blogs/${firstBlog.id}`).send(firstBlog).expect(200)
-  // })
+  test('we can NOT update the "likes" prop of a blog post if not authenticated', async () => {
+    const blogs = await api.get('/api/blogs')
+    const firstBlog = blogs.body[0]
+    firstBlog.likes += 1
+    await api.put(`/api/blogs/${firstBlog.id}`).send(firstBlog).expect(401)
+  })
+
+  test('we CAN update the "likes" prop of a blog post if authenticated', async () => {
+    const loginResponse = await api
+      .post('/api/login')
+      .send({ username: 'root', password: 'secret' })
+
+    const token = loginResponse.body.token
+
+    const user = await User.find({ username: loginResponse.body.username })
+
+    const blogs = await api.get('/api/blogs')
+    const blog = blogs.body.find((b) => {
+      return b.user.id === user[0]._id.toString()
+    })
+
+    blog.likes += 1
+
+    await api
+      .put(`/api/blogs/${blog.id}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send(blog)
+      .expect(201)
+  })
 })
 
 after(async () => {
