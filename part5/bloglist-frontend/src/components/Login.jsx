@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import loginService from '../services/login'
 
-const Login = ({ setUser }) => {
+const Login = ({ setUser, user }) => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
 
@@ -12,6 +12,8 @@ const Login = ({ setUser }) => {
         username,
         password,
       })
+
+      window.localStorage.setItem('loggedUser', JSON.stringify(user))
 
       setUser(user)
       setUsername('')
