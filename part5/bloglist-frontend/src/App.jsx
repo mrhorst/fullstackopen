@@ -8,6 +8,8 @@ const App = () => {
   const [user, setUser] = useState(null)
 
   useEffect(() => {
+    getAllBlogs()
+
     if (user === null) {
       const loggedUser = localStorage.getItem('loggedUser')
       if (loggedUser) {
@@ -17,18 +19,11 @@ const App = () => {
     }
   }, [])
 
-  useEffect(() => {
-    getAllBlogs()
-  }, [])
-
   const getAllBlogs = async () => {
     const blogs = await blogService.getAll()
     setBlogs(blogs)
   }
 
-  const addUserToLocalStorage = () => {
-    window.localStorage.setItem('loggedUser', JSON.stringify(user))
-  }
   const logout = () => {
     localStorage.clear()
     setUser(null)
@@ -46,9 +41,7 @@ const App = () => {
         {user.name} logged in <button onClick={logout}>logout</button>
       </p>
 
-      {blogs.map((blog) => (
-        <Blog key={blog.id} blog={blog} />
-      ))}
+      <Blog blogs={blogs} user={user} />
     </div>
   )
 }
