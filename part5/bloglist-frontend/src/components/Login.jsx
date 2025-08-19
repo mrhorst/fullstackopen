@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import loginService from '../services/login'
 
-const Login = ({ setUser, user }) => {
+const Login = ({ setUser, handleNotification }) => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
 
@@ -18,8 +18,9 @@ const Login = ({ setUser, user }) => {
       setUser(user)
       setUsername('')
       setPassword('')
+      handleNotification(`Welcome, ${user.name}!`, `success`)
     } catch (e) {
-      console.log(e)
+      handleNotification(e.response.data.error, 'failure')
     }
   }
 

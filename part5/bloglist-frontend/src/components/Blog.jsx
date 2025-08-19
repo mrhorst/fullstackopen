@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import blogService from '../services/blogs'
 
-const Blog = ({ blogs, user }) => (
+const Blog = ({ blogs, user, handleNotification }) => (
   <div>
-    <AddBlog user={user} />
+    <AddBlog user={user} handleNotification={handleNotification} />
     {blogs.map((blog) => (
       <p key={blog.id}>
         Title:{blog.title} -{blog.author}
@@ -12,23 +12,31 @@ const Blog = ({ blogs, user }) => (
   </div>
 )
 
-const AddBlog = ({ user }) => {
+const AddBlog = ({ user, handleNotification }) => {
   const [title, setTitle] = useState('')
   const [author, setAuthor] = useState('')
   const [url, setUrl] = useState('')
 
   const createBlog = async (e) => {
-    e.preventDefault()
-    const blog = {
-      title,
-      author,
-      url,
-    }
-    const config = {
-      headers: { Authorization: `Bearer ${user.token}` },
-    }
+    try {
+      e.preventDefault()
+      const blog = {
+        title,
+        author,
+        url,
+      }
+      const config = {
+        headers: { Authorization: `Bearer ${user.token}` },
+      }
 
-    await blogService.createBlog(blog, config)
+      const addedBlog = await blogService.createBlog(blog, config)
+      handleNotification(
+        `new blog added: ${addedBlog.title} by ${addedBlog.author}`,
+        'success'
+      )
+    } catch (e) {
+      handleNotification(e.response.data.error, 'failure')
+    }
   }
   return (
     <div>
