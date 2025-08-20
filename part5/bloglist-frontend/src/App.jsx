@@ -13,7 +13,7 @@ const App = () => {
   })
 
   useEffect(() => {
-    getAllBlogs()
+    getBlogs()
 
     if (user === null) {
       const loggedUser = localStorage.getItem('loggedUser')
@@ -24,7 +24,7 @@ const App = () => {
     }
   }, [])
 
-  const getAllBlogs = async () => {
+  const getBlogs = async () => {
     const blogs = await blogService.getAll()
     setBlogs(blogs)
   }
@@ -67,6 +67,7 @@ const App = () => {
           </p>
 
           <Blog
+            getBlogs={getBlogs}
             blogs={blogs}
             user={user}
             handleNotification={handleNotification}

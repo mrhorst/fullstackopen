@@ -72,9 +72,12 @@ blogsRouter.put('/:id', async (request, response) => {
   if (!request.user) {
     return response.status(401).json({ error: 'invalid token' })
   }
-  const { likes } = request.body
+
+  const { likes, url, author, title } = request.body
   const blog = await Blog.findById(request.params.id)
-  blog.likes = likes
+
+  blog = { ...blog, likes, url, author, title }
+
   await blog.save()
   response.status(201).json(blog)
 })

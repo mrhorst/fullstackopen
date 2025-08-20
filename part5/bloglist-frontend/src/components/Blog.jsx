@@ -3,7 +3,7 @@ import { useRef } from 'react'
 import blogService from '../services/blogs'
 import Toggable from './Toggable'
 
-const Blog = ({ blogs, user, handleNotification }) => {
+const Blog = ({ getBlogs, blogs, user, handleNotification }) => {
   const blogFormRef = useRef()
 
   const config = {
@@ -13,7 +13,10 @@ const Blog = ({ blogs, user, handleNotification }) => {
   const handleLike = async (e) => {
     try {
       const blogId = e.target.parentElement.parentElement.parentElement.id
-      await blogService.updateLikes(blogId, config)
+      const blog = blogs.find((b) => b.id === blogId)
+      const updatedBlog = { ...blog, likes: blog.likes + 1 }
+      await blogService.updateLikes(blogId, updatedBlog, config)
+      getBlogs()
     } catch (e) {
       console.log(e)
     }
