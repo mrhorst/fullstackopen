@@ -6,6 +6,19 @@ import Toggable from './Toggable'
 const Blog = ({ blogs, user, handleNotification }) => {
   const blogFormRef = useRef()
 
+  const config = {
+    headers: { Authorization: `Bearer ${user.token}` },
+  }
+
+  const handleLike = async (e) => {
+    try {
+      const blogId = e.target.parentElement.parentElement.parentElement.id
+      await blogService.updateLikes(blogId, config)
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
   return (
     <div>
       <Toggable
@@ -15,7 +28,7 @@ const Blog = ({ blogs, user, handleNotification }) => {
       >
         <AddBlog
           blogFormRef={blogFormRef}
-          user={user}
+          config={config}
           handleNotification={handleNotification}
         />
       </Toggable>
@@ -23,12 +36,14 @@ const Blog = ({ blogs, user, handleNotification }) => {
         <div
           style={{ border: '1px solid', padding: '5px', margin: '5px 0 5px 0' }}
           key={blog.id}
+          id={blog.id}
         >
           Title:{blog.title} -{blog.author}
           <Toggable showLabel={'show info'} hideLabel={'hide info'}>
             <div>URL: {blog.url}</div>
             <div>Likes: {blog.likes}</div>
             <div>User: {blog.user.name}</div>
+            <button onClick={handleLike}>like</button>
           </Toggable>
         </div>
       ))}
@@ -36,7 +51,7 @@ const Blog = ({ blogs, user, handleNotification }) => {
   )
 }
 
-const AddBlog = ({ user, handleNotification, blogFormRef }) => {
+const AddBlog = ({ config, handleNotification, blogFormRef }) => {
   const [title, setTitle] = useState('')
   const [author, setAuthor] = useState('')
   const [url, setUrl] = useState('')
@@ -48,9 +63,6 @@ const AddBlog = ({ user, handleNotification, blogFormRef }) => {
         title,
         author,
         url,
-      }
-      const config = {
-        headers: { Authorization: `Bearer ${user.token}` },
       }
 
       const addedBlog = await blogService.createBlog(blog, config)
