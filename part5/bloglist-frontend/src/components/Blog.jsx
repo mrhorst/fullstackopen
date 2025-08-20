@@ -1,18 +1,30 @@
 import { useState } from 'react'
+import { useRef } from 'react'
 import blogService from '../services/blogs'
+import Toggable from './Toggable'
 
-const Blog = ({ blogs, user, handleNotification }) => (
-  <div>
-    <AddBlog user={user} handleNotification={handleNotification} />
-    {blogs.map((blog) => (
-      <p key={blog.id}>
-        Title:{blog.title} -{blog.author}
-      </p>
-    ))}
-  </div>
-)
+const Blog = ({ blogs, user, handleNotification }) => {
+  const blogFormRef = useRef()
 
-const AddBlog = ({ user, handleNotification }) => {
+  return (
+    <div>
+      <Toggable ref={blogFormRef}>
+        <AddBlog
+          blogFormRef={blogFormRef}
+          user={user}
+          handleNotification={handleNotification}
+        />
+      </Toggable>
+      {blogs.map((blog) => (
+        <p key={blog.id}>
+          Title:{blog.title} -{blog.author}
+        </p>
+      ))}
+    </div>
+  )
+}
+
+const AddBlog = ({ user, handleNotification, blogFormRef }) => {
   const [title, setTitle] = useState('')
   const [author, setAuthor] = useState('')
   const [url, setUrl] = useState('')
@@ -34,6 +46,7 @@ const AddBlog = ({ user, handleNotification }) => {
         `new blog added: ${addedBlog.title} by ${addedBlog.author}`,
         'success'
       )
+      blogFormRef.current.toggleVisibility()
     } catch (e) {
       handleNotification(e.response.data.error, 'failure')
     }
