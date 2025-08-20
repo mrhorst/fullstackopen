@@ -8,7 +8,11 @@ const Blog = ({ blogs, user, handleNotification }) => {
 
   return (
     <div>
-      <Toggable ref={blogFormRef}>
+      <Toggable
+        ref={blogFormRef}
+        hideLabel={'hide form'}
+        showLabel={'show form'}
+      >
         <AddBlog
           blogFormRef={blogFormRef}
           user={user}
@@ -16,9 +20,17 @@ const Blog = ({ blogs, user, handleNotification }) => {
         />
       </Toggable>
       {blogs.map((blog) => (
-        <p key={blog.id}>
+        <div
+          style={{ border: '1px solid', padding: '5px', margin: '5px 0 5px 0' }}
+          key={blog.id}
+        >
           Title:{blog.title} -{blog.author}
-        </p>
+          <Toggable showLabel={'show info'} hideLabel={'hide info'}>
+            <div>URL: {blog.url}</div>
+            <div>Likes: {blog.likes}</div>
+            <div>User: {blog.user.name}</div>
+          </Toggable>
+        </div>
       ))}
     </div>
   )
