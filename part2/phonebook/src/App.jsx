@@ -16,28 +16,31 @@ const App = () => {
 
   const handleDelete = (id) => {
     const personToDelete = persons.find((p) => p.id === id)
-    alert(`Are you sure you want to delete ${personToDelete.name}?`)
-    personService
-      .deletePerson(personToDelete.id)
-      .then((response) => {
-        const filteredPersons = persons.filter((p) => p.id !== response.data.id)
-        setPersons([...filteredPersons])
-        handleNotification(
-          `Person ${response.data.name} deleted successfully!`,
-          'success'
-        )
-      })
-      .catch((e) => {
-        console.error(
-          `Could not delete.\npersonToDelete: `,
-          personToDelete,
-          `\n${e.message}`
-        )
-        handleNotification(
-          `Person ${personToDelete.name} has already been deleted..`,
-          'error'
-        )
-      })
+    if (confirm(`Are you sure you want to delete ${personToDelete.name}?`)) {
+      personService
+        .deletePerson(personToDelete.id)
+        .then((response) => {
+          const filteredPersons = persons.filter(
+            (p) => p.id !== response.data.id
+          )
+          setPersons([...filteredPersons])
+          handleNotification(
+            `Person ${response.data.name} deleted successfully!`,
+            'success'
+          )
+        })
+        .catch((e) => {
+          console.error(
+            `Could not delete.\npersonToDelete: `,
+            personToDelete,
+            `\n${e.message}`
+          )
+          handleNotification(
+            `Person ${personToDelete.name} has already been deleted..`,
+            'error'
+          )
+        })
+    }
   }
 
   const handleNotification = (message, type) => {
@@ -84,21 +87,24 @@ const App = () => {
       setNewNumber('')
     } else {
       try {
-        alert(
-          `${newName} is already present in the phonebook. Would you like to update the phone number?`
-        )
-        const person = persons.find((p) => p.name === newName)
-        personService
-          .updatePerson(person.id, { ...person, number: newNumber })
-          .then((response) =>
-            setPersons(
-              persons.map((p) => (p.id === person.id ? response.data : p))
-            )
+        if (
+          confirm(
+            `${newName} is already present in the phonebook. Would you like to update the phone number?`
           )
-        handleNotification(
-          `Person ${person.name} has been updated successfully!`,
-          'success'
-        )
+        ) {
+          const person = persons.find((p) => p.name === newName)
+          personService
+            .updatePerson(person.id, { ...person, number: newNumber })
+            .then((response) =>
+              setPersons(
+                persons.map((p) => (p.id === person.id ? response.data : p))
+              )
+            )
+          handleNotification(
+            `Person ${person.name} has been updated successfully!`,
+            'success'
+          )
+        }
       } catch (e) {
         console.error(e.message)
       }

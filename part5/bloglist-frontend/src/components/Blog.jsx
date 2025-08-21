@@ -12,11 +12,40 @@ const Blog = ({ getBlogs, blogs, user, handleNotification }) => {
 
   const handleLike = async (e) => {
     try {
-      const blogId = e.target.parentElement.parentElement.parentElement.id
+      const blogId = e.target.id
       const blog = blogs.find((b) => b.id === blogId)
       const updatedBlog = { ...blog, likes: blog.likes + 1 }
       await blogService.updateLikes(blogId, updatedBlog, config)
       getBlogs()
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
+  const handleDelete = async (e) => {
+    try {
+      if (
+        confirm(
+          `remove blog ${e.target.getAttribute(
+            'blogtitle'
+          )} by ${e.target.getAttribute('blogauthor')} ?`
+        )
+      ) {
+        const blogId = e.target.id
+        await blogService.deleteBlog(blogId, config)
+        getBlogs()
+        handleNotification(
+          `blog ${e.target.getAttribute('blogtitle')} deleted successfully`,
+          'success'
+        )
+      } else {
+        handleNotification(
+          `did NOT delete blog ${e.target.getAttribute(
+            'blogtitle'
+          )}. reason: canceled by user`,
+          'failure'
+        )
+      }
     } catch (e) {
       console.log(e)
     }
@@ -30,6 +59,7 @@ const Blog = ({ getBlogs, blogs, user, handleNotification }) => {
         showLabel={'show form'}
       >
         <AddBlog
+          getBlogs={getBlogs}
           blogFormRef={blogFormRef}
           config={config}
           handleNotification={handleNotification}
@@ -39,14 +69,25 @@ const Blog = ({ getBlogs, blogs, user, handleNotification }) => {
         <div
           style={{ border: '1px solid', padding: '5px', margin: '5px 0 5px 0' }}
           key={blog.id}
-          id={blog.id}
         >
           Title:{blog.title} -{blog.author}
           <Toggable showLabel={'show info'} hideLabel={'hide info'}>
             <div>URL: {blog.url}</div>
-            <div>Likes: {blog.likes}</div>
+            <div>
+              Likes: {blog.likes}{' '}
+              <button id={blog.id} onClick={handleLike}>
+                like
+              </button>
+            </div>
             <div>User: {blog.user.name}</div>
-            <button onClick={handleLike}>like</button>
+            <button
+              blogtitle={blog.title}
+              blogauthor={blog.author}
+              id={blog.id}
+              onClick={handleDelete}
+            >
+              delete
+            </button>
           </Toggable>
         </div>
       ))}
@@ -54,7 +95,7 @@ const Blog = ({ getBlogs, blogs, user, handleNotification }) => {
   )
 }
 
-const AddBlog = ({ config, handleNotification, blogFormRef }) => {
+const AddBlog = ({ getBlogs, config, handleNotification, blogFormRef }) => {
   const [title, setTitle] = useState('')
   const [author, setAuthor] = useState('')
   const [url, setUrl] = useState('')
@@ -74,6 +115,7 @@ const AddBlog = ({ config, handleNotification, blogFormRef }) => {
         'success'
       )
       blogFormRef.current.toggleVisibility()
+      getBlogs()
     } catch (e) {
       handleNotification(e.response.data.error, 'failure')
     }
