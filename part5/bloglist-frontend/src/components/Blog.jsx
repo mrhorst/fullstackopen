@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useRef } from 'react'
 import blogService from '../services/blogs'
 import Toggable from './Toggable'
+import PropTypes from 'prop-types'
 
 const Blog = ({ getBlogs, blogs, user, handleNotification }) => {
   const blogFormRef = useRef()
@@ -27,15 +28,17 @@ const Blog = ({ getBlogs, blogs, user, handleNotification }) => {
       if (
         confirm(
           `remove blog ${e.target.getAttribute(
-            'blogtitle'
-          )} by ${e.target.getAttribute('blogauthor')} ?`
+            'data-blogtitle'
+          )} by ${e.target.getAttribute('data-blogauthor')} ?`
         )
       ) {
         const blogId = e.target.id
         await blogService.deleteBlog(blogId, config)
         getBlogs()
         handleNotification(
-          `blog ${e.target.getAttribute('blogtitle')} deleted successfully`,
+          `blog ${e.target.getAttribute(
+            'data-blogtitle'
+          )} deleted successfully`,
           'success'
         )
       } else {
@@ -81,8 +84,8 @@ const Blog = ({ getBlogs, blogs, user, handleNotification }) => {
             </div>
             <div>User: {blog.user.name}</div>
             <button
-              blogtitle={blog.title}
-              blogauthor={blog.author}
+              data-blogtitle={blog.title}
+              data-blogauthor={blog.author}
               id={blog.id}
               onClick={handleDelete}
             >

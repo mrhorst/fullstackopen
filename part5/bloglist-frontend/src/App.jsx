@@ -22,7 +22,7 @@ const App = () => {
         setUser(user)
       }
     }
-  }, [])
+  }, [user])
 
   const getBlogs = async () => {
     const blogs = await blogService.getAll()

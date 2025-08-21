@@ -18,7 +18,7 @@ const Login = ({ setUser, handleNotification }) => {
       setUser(user)
       setUsername('')
       setPassword('')
-      handleNotification(`Welcome, ${user.name}!`, `success`)
+      handleNotification(`Welcome, ${user.name}!`, 'success')
     } catch (e) {
       handleNotification(e.response.data.error, 'failure')
     }
@@ -38,11 +38,11 @@ const Login = ({ setUser, handleNotification }) => {
       <form onSubmit={handleLogin}>
         <div>
           username{' '}
-          <input name="username" onChange={handleInput} value={username} />
+          <input name='username' onChange={handleInput} value={username} />
         </div>
         <div>
           password{' '}
-          <input name="password" onChange={handleInput} value={password} />
+          <input name='password' onChange={handleInput} value={password} />
         </div>
         <button>login</button>
       </form>
