@@ -11,6 +11,7 @@ const App = () => {
     message: null,
     type: null,
   })
+  const [config, setConfig] = useState(null)
 
   useEffect(() => {
     getBlogs()
@@ -20,6 +21,9 @@ const App = () => {
       if (loggedUser) {
         const user = JSON.parse(loggedUser)
         setUser(user)
+        setConfig({
+          headers: { Authorization: `Bearer ${user.token}` },
+        })
       }
     }
   }, [user])
@@ -34,6 +38,18 @@ const App = () => {
   const logout = () => {
     localStorage.clear()
     setUser(null)
+    setConfig(null)
+  }
+
+  const handleLike = async (blogId) => {
+    try {
+      const blog = blogs.find((b) => b.id === blogId)
+      const updatedBlog = { ...blog, likes: blog.likes + 1 }
+      await blogService.updateLikes(blogId, updatedBlog, config)
+      getBlogs()
+    } catch (e) {
+      console.log(e)
+    }
   }
 
   const handleNotification = (message, type) => {
@@ -56,6 +72,7 @@ const App = () => {
         <div>
           <Login
             setUser={setUser}
+            setConfig={setConfig}
             user={user}
             handleNotification={handleNotification}
           />
@@ -71,8 +88,10 @@ const App = () => {
           <Blog
             getBlogs={getBlogs}
             blogs={blogs}
-            user={user}
+            // user={user}
+            config={config}
             handleNotification={handleNotification}
+            handleLike={handleLike}
           />
         </div>
       )}

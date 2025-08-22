@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import loginService from '../services/login'
 
-const Login = ({ setUser, handleNotification }) => {
+const Login = ({ setConfig, setUser, handleNotification }) => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
 
@@ -16,6 +16,9 @@ const Login = ({ setUser, handleNotification }) => {
       window.localStorage.setItem('loggedUser', JSON.stringify(user))
 
       setUser(user)
+      setConfig({
+        headers: { Authorization: `Bearer ${user.token}` },
+      })
       setUsername('')
       setPassword('')
       handleNotification(`Welcome, ${user.name}!`, 'success')

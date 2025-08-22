@@ -3,24 +3,8 @@ import { useRef } from 'react'
 import blogService from '../services/blogs'
 import Toggable from './Toggable'
 
-const Blog = ({ getBlogs, blogs, user, handleNotification }) => {
+const Blog = ({ getBlogs, blogs, handleNotification, handleLike, config }) => {
   const blogFormRef = useRef()
-
-  const config = {
-    headers: { Authorization: `Bearer ${user.token}` },
-  }
-
-  const handleLike = async (e) => {
-    try {
-      const blogId = e.target.id
-      const blog = blogs.find((b) => b.id === blogId)
-      const updatedBlog = { ...blog, likes: blog.likes + 1 }
-      await blogService.updateLikes(blogId, updatedBlog, config)
-      getBlogs()
-    } catch (e) {
-      console.log(e)
-    }
-  }
 
   const handleDelete = async (e) => {
     try {
@@ -77,7 +61,7 @@ const Blog = ({ getBlogs, blogs, user, handleNotification }) => {
             <div>URL: {blog.url}</div>
             <div>
               Likes: {blog.likes}{' '}
-              <button id={blog.id} onClick={handleLike}>
+              <button id={blog.id} onClick={() => handleLike(blog.id)}>
                 like
               </button>
             </div>
