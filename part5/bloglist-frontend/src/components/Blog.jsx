@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { useRef } from 'react'
 import blogService from '../services/blogs'
 import Toggable from './Toggable'
-import PropTypes from 'prop-types'
 
 const Blog = ({ getBlogs, blogs, user, handleNotification }) => {
   const blogFormRef = useRef()
