@@ -4,6 +4,25 @@ import blogService from '../services/blogs'
 import Toggable from './Toggable'
 
 const Blog = ({ getBlogs, blogs, handleNotification, handleLike, config }) => {
+  const handleCreateBlog = async (title, author, url) => {
+    try {
+      const blog = {
+        title,
+        author,
+        url,
+      }
+
+      const addedBlog = await blogService.createBlog(blog, config)
+      handleNotification(
+        `new blog added: ${addedBlog.title} by ${addedBlog.author}`,
+        'success'
+      )
+      blogFormRef.current.toggleVisibility()
+      getBlogs()
+    } catch (e) {
+      handleNotification(e.response.data.error, 'failure')
+    }
+  }
   const blogFormRef = useRef()
 
   const handleDelete = async (e) => {
@@ -44,12 +63,7 @@ const Blog = ({ getBlogs, blogs, handleNotification, handleLike, config }) => {
         hideLabel={'hide form'}
         showLabel={'show form'}
       >
-        <AddBlog
-          getBlogs={getBlogs}
-          blogFormRef={blogFormRef}
-          config={config}
-          handleNotification={handleNotification}
-        />
+        <AddBlog handleCreateBlog={handleCreateBlog} />
       </Toggable>
       {blogs.map((blog) => (
         <div
@@ -81,45 +95,45 @@ const Blog = ({ getBlogs, blogs, handleNotification, handleLike, config }) => {
   )
 }
 
-const AddBlog = ({ getBlogs, config, handleNotification, blogFormRef }) => {
+export const AddBlog = ({ handleCreateBlog }) => {
   const [title, setTitle] = useState('')
   const [author, setAuthor] = useState('')
   const [url, setUrl] = useState('')
 
-  const createBlog = async (e) => {
-    try {
-      e.preventDefault()
-      const blog = {
-        title,
-        author,
-        url,
-      }
-
-      const addedBlog = await blogService.createBlog(blog, config)
-      handleNotification(
-        `new blog added: ${addedBlog.title} by ${addedBlog.author}`,
-        'success'
-      )
-      blogFormRef.current.toggleVisibility()
-      getBlogs()
-    } catch (e) {
-      handleNotification(e.response.data.error, 'failure')
-    }
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    handleCreateBlog(title, author, url)
+    setAuthor('')
+    setTitle('')
+    setUrl('')
   }
+
   return (
     <div>
-      <form onSubmit={createBlog}>
+      <form onSubmit={handleSubmit}>
         <div>
           title:
-          <input value={title} onChange={(e) => setTitle(e.target.value)} />
+          <input
+            id={'titleInput'}
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
         </div>
         <div>
           author:
-          <input value={author} onChange={(e) => setAuthor(e.target.value)} />
+          <input
+            id={'authorInput'}
+            value={author}
+            onChange={(e) => setAuthor(e.target.value)}
+          />
         </div>
         <div>
           url:
-          <input value={url} onChange={(e) => setUrl(e.target.value)} />
+          <input
+            id={'urlInput'}
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+          />
         </div>
         <button>add blog</button>
       </form>

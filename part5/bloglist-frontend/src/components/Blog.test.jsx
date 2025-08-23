@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import Blog from './Blog'
+import { AddBlog } from './Blog'
 
 const blog = {
   id: 1,
@@ -61,4 +62,36 @@ test('if like button is clicked twice, event handler is called twice', async () 
 
   expect(mockHandler.mock.calls).toHaveLength(2)
   expect(mockHandler).toHaveBeenCalledTimes(2)
+})
+
+test('new blog form calls the handler function with the right details', async () => {
+  const mockHandleCreateBlog = vi.fn()
+  const { container } = render(
+    <AddBlog handleCreateBlog={mockHandleCreateBlog} />
+  )
+
+  const user = userEvent.setup()
+
+  const newBlog = {
+    title: 'test title',
+    author: 'test author',
+    url: 'test url',
+  }
+  const titleInput = container.querySelector('#titleInput')
+  const authorInput = container.querySelector('#authorInput')
+  const urlInput = container.querySelector('#urlInput')
+
+  await user.type(titleInput, newBlog.title)
+  await user.type(authorInput, newBlog.author)
+  await user.type(urlInput, newBlog.url)
+
+  const addBlogBtn = screen.getByText('add blog')
+
+  await user.click(addBlogBtn)
+
+  expect(mockHandleCreateBlog).toHaveBeenCalledWith(
+    'test title',
+    'test author',
+    'test url'
+  )
 })
