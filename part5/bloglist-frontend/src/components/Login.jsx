@@ -28,10 +28,10 @@ const Login = ({ setConfig, setUser, handleNotification }) => {
   }
 
   const handleInput = (e) => {
-    if (e.target.name === 'username') {
+    if (e.target.id === 'username-input') {
       setUsername(e.target.value)
     }
-    if (e.target.name === 'password') {
+    if (e.target.id === 'password-input') {
       setPassword(e.target.value)
     }
   }
