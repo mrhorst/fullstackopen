@@ -112,7 +112,7 @@ export const AddBlog = ({ handleCreateBlog }) => {
     <div>
       <form onSubmit={handleSubmit}>
         <div>
-          title:
+          <label htmlFor='titleInput'>title</label>
           <input
             id={'titleInput'}
             value={title}
@@ -120,7 +120,7 @@ export const AddBlog = ({ handleCreateBlog }) => {
           />
         </div>
         <div>
-          author:
+          <label htmlFor='authorInput'>author</label>
           <input
             id={'authorInput'}
             value={author}
@@ -128,7 +128,7 @@ export const AddBlog = ({ handleCreateBlog }) => {
           />
         </div>
         <div>
-          url:
+          <label htmlFor='urlInput'>url</label>
           <input
             id={'urlInput'}
             value={url}

@@ -38,4 +38,21 @@ describe('Blog app', () => {
       await expect(successDiv).toContainText('Welcome, root user!')
     })
   })
+
+  describe('when logged in', () => {
+    beforeEach(async ({ page }) => {
+      await loginWith(page, 'root', 'password')
+    })
+
+    test('a new blog can be created', async ({ page }) => {
+      await page.getByRole('button', { name: 'show form' }).click()
+      await page.getByLabel('title').fill('title from playwright')
+      await page.getByLabel('author').fill('author from playwright')
+      await page.getByLabel('url').fill('url from playwright')
+      await page.getByRole('button', { name: 'add blog' }).click()
+      await page
+        .getByText('Title:title from playwright -author from playwright')
+        .waitFor()
+    })
+  })
 })
