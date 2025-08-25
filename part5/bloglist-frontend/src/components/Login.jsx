@@ -40,12 +40,12 @@ const Login = ({ setConfig, setUser, handleNotification }) => {
       <h1>log in to application</h1>
       <form onSubmit={handleLogin}>
         <div>
-          username{' '}
-          <input name='username' onChange={handleInput} value={username} />
+          <label htmlFor='username-input'>username</label>
+          <input id='username-input' onChange={handleInput} value={username} />
         </div>
         <div>
-          password{' '}
-          <input name='password' onChange={handleInput} value={password} />
+          <label htmlFor='password-input'>password</label>
+          <input id='password-input' onChange={handleInput} value={password} />
         </div>
         <button>login</button>
       </form>
