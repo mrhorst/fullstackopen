@@ -76,6 +76,7 @@ const Blog = ({
         <div
           style={{ border: '1px solid', padding: '5px', margin: '5px 0 5px 0' }}
           key={blog.id}
+          className='blogs'
         >
           Title:{blog.title} -{blog.author}
           <Toggable showLabel={'show info'} hideLabel={'hide info'}>

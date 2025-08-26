@@ -1,5 +1,5 @@
 const { test, expect, beforeEach, describe } = require('@playwright/test')
-const { loginWith, createBlog, createUser } = require('./helper')
+const { loginWith, createBlogWith, createUser } = require('./helper')
 
 describe('Blog app', () => {
   beforeEach(async ({ page, request }) => {
@@ -46,7 +46,7 @@ describe('Blog app', () => {
     })
 
     test('a new blog can be created', async ({ page }) => {
-      const locator = await createBlog(
+      const locator = await createBlogWith(
         page,
         'my title',
         'my author',
@@ -56,7 +56,7 @@ describe('Blog app', () => {
     })
 
     test('the blog created can be liked', async ({ page }) => {
-      await createBlog(page, 'my title', 'my author', 'myurl.com')
+      await createBlogWith(page, 'my title', 'my author', 'myurl.com')
       await page.getByRole('button', { name: 'show info' }).click()
       await expect(page.getByText('Likes: 0')).toBeVisible()
       await page.getByRole('button', { name: 'like' }).click()
@@ -64,7 +64,7 @@ describe('Blog app', () => {
     })
 
     test('user can delete their own blogs', async ({ page }) => {
-      await createBlog(
+      await createBlogWith(
         page,
         'will be deleted',
         'deleted author',
@@ -98,12 +98,44 @@ describe('Blog app', () => {
         'newuser',
         'password'
       )
-      await createBlog(page, 'root title', 'root author', 'rootuser.com')
+      await createBlogWith(page, 'root title', 'root author', 'rootuser.com')
       await page.getByRole('button', { name: 'logout' }).click()
       await loginWith(page, 'newuser', 'password')
       await page.getByRole('button', { name: 'show info' }).click()
       const deleteBtn = page.getByRole('button', { name: 'delete' })
       await expect(deleteBtn).not.toBeVisible()
+    })
+
+    test('blogs are listed in descending order (likes)', async ({ page }) => {
+      await createBlogWith(page, 'first', 'first', 'first')
+      await createBlogWith(page, 'second', 'second', 'second')
+      await createBlogWith(page, 'third', 'third', 'third')
+      await createBlogWith(page, 'fourth', 'fourth', 'fourth')
+
+      await page.getByText('fourth').getByRole('button').click()
+      await page
+        .getByText('fourth')
+        .locator('..')
+        .getByRole('button', { name: 'like' })
+        .click()
+
+      await page.getByText('second').getByRole('button').click()
+      await page
+        .getByText('second')
+        .locator('..')
+        .getByRole('button', { name: 'like' })
+        .click()
+
+      await expect(page.locator('.blogs').first()).toContainText('fourth')
+      await expect(page.locator('.blogs').first()).toContainText('second')
+
+      await page
+        .getByText('fourth')
+        .locator('..')
+        .getByRole('button', { name: 'like' })
+        .click()
+
+      await expect(page.locator('.blogs').first()).toContainText('fourth')
     })
   })
 })
