@@ -1,16 +1,17 @@
 const { test, expect, beforeEach, describe } = require('@playwright/test')
-const { loginWith, createBlog } = require('./helper')
+const { loginWith, createBlog, createUser } = require('./helper')
 
 describe('Blog app', () => {
   beforeEach(async ({ page, request }) => {
     await request.post('http://localhost:3000/api/testing/reset')
-    await request.post('http://localhost:3000/api/users', {
-      data: {
-        name: 'root user',
-        username: 'root',
-        password: 'password',
-      },
-    })
+    createUser(
+      request,
+      'http://localhost:3000/api/users',
+      'root user',
+      'root',
+      'password'
+    )
+
     await page.goto('http://localhost:5173')
   })
 
@@ -84,6 +85,25 @@ describe('Blog app', () => {
       await expect(
         page.getByText('blog will be deleted deleted successfully')
       ).toBeVisible()
+    })
+
+    test("only the resource's owner can see the delete button", async ({
+      page,
+      request,
+    }) => {
+      createUser(
+        request,
+        'http://localhost:3000/api/users',
+        'new user',
+        'newuser',
+        'password'
+      )
+      await createBlog(page, 'root title', 'root author', 'rootuser.com')
+      await page.getByRole('button', { name: 'logout' }).click()
+      await loginWith(page, 'newuser', 'password')
+      await page.getByRole('button', { name: 'show info' }).click()
+      const deleteBtn = page.getByRole('button', { name: 'delete' })
+      await expect(deleteBtn).not.toBeVisible()
     })
   })
 })

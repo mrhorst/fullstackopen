@@ -88,7 +88,7 @@ const App = () => {
           <Blog
             getBlogs={getBlogs}
             blogs={blogs}
-            // user={user}
+            user={user}
             config={config}
             handleNotification={handleNotification}
             handleLike={handleLike}

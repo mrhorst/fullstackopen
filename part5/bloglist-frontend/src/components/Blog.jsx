@@ -3,7 +3,14 @@ import { useRef } from 'react'
 import blogService from '../services/blogs'
 import Toggable from './Toggable'
 
-const Blog = ({ getBlogs, blogs, handleNotification, handleLike, config }) => {
+const Blog = ({
+  getBlogs,
+  blogs,
+  user,
+  handleNotification,
+  handleLike,
+  config,
+}) => {
   const handleCreateBlog = async (title, author, url) => {
     try {
       const blog = {
@@ -52,7 +59,7 @@ const Blog = ({ getBlogs, blogs, handleNotification, handleLike, config }) => {
         )
       }
     } catch (e) {
-      console.log(e)
+      handleNotification(e.response.data.error, 'failure')
     }
   }
 
@@ -81,6 +88,11 @@ const Blog = ({ getBlogs, blogs, handleNotification, handleLike, config }) => {
             </div>
             <div>User: {blog.user.name}</div>
             <button
+              style={
+                user.username === blog.user.username
+                  ? { display: '' }
+                  : { display: 'none' }
+              }
               data-blogtitle={blog.title}
               data-blogauthor={blog.author}
               id={blog.id}

@@ -15,4 +15,14 @@ const createBlog = async (page, title, author, url) => {
   return locator
 }
 
-export { loginWith, createBlog }
+const createUser = async (request, url, name, username, password) => {
+  await request.post(url, {
+    data: {
+      name,
+      username,
+      password,
+    },
+  })
+}
+
+export { loginWith, createBlog, createUser }
