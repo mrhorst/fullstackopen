@@ -10,7 +10,6 @@ const getAll = async () => {
 const createAnecdote = async (content) => {
   const anecdote = { content, votes: 0 }
   const response = await axios.post(baseUrl, anecdote)
-  console.log(response.data)
   return response.data
 }
 
