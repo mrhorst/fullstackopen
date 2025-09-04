@@ -8,9 +8,10 @@ import {
   setNotification,
   clearNotification,
 } from './reducers/notificationSlice'
+import { initializeBlogs } from './reducers/blogSlice'
 
 const App = () => {
-  const [blogs, setBlogs] = useState([])
+  const blogs = useSelector((state) => state.blogs)
   const [user, setUser] = useState(null)
 
   const [config, setConfig] = useState(null)
@@ -18,7 +19,7 @@ const App = () => {
   const dispatch = useDispatch()
 
   useEffect(() => {
-    getBlogs()
+    dispatch(initializeBlogs())
 
     if (user === null) {
       const loggedUser = localStorage.getItem('loggedUser')
@@ -31,13 +32,6 @@ const App = () => {
       }
     }
   }, [user])
-
-  const getBlogs = async () => {
-    const blogs = await blogService.getAll()
-    blogs.sort((a, b) => b.likes - a.likes)
-
-    setBlogs(blogs)
-  }
 
   const logout = () => {
     localStorage.clear()
@@ -90,7 +84,6 @@ const App = () => {
           </p>
 
           <Blog
-            getBlogs={getBlogs}
             blogs={blogs}
             user={user}
             config={config}

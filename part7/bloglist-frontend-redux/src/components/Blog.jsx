@@ -2,15 +2,12 @@ import { useState } from 'react'
 import { useRef } from 'react'
 import blogService from '../services/blogs'
 import Toggable from './Toggable'
+import { useDispatch } from 'react-redux'
+import { createBlog } from '../reducers/blogSlice'
 
-const Blog = ({
-  getBlogs,
-  blogs,
-  user,
-  handleNotification,
-  handleLike,
-  config,
-}) => {
+const Blog = ({ blogs, user, handleNotification, handleLike, config }) => {
+  const dispatch = useDispatch()
+
   const handleCreateBlog = async (title, author, url) => {
     try {
       const blog = {
@@ -19,13 +16,12 @@ const Blog = ({
         url,
       }
 
-      const addedBlog = await blogService.createBlog(blog, config)
+      dispatch(createBlog(blog, config))
       handleNotification(
-        `new blog added: ${addedBlog.title} by ${addedBlog.author}`,
+        `new blog added: ${blog.title} by ${blog.author}`,
         'success'
       )
       blogFormRef.current.toggleVisibility()
-      getBlogs()
     } catch (e) {
       handleNotification(e.response.data.error, 'failure')
     }
@@ -43,7 +39,7 @@ const Blog = ({
       ) {
         const blogId = e.target.id
         await blogService.deleteBlog(blogId, config)
-        getBlogs()
+
         handleNotification(
           `blog ${e.target.getAttribute(
             'data-blogtitle'
