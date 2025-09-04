@@ -10,12 +10,16 @@ blogsRouter.get('/', async (request, response) => {
 blogsRouter.post('/', async (request, response) => {
   const body = new Blog(request.body)
 
+  const authenticatedUser = request.user
+  const user = await User.findById(authenticatedUser.id)
+
+  if (!user) {
+    return response.status(400).send({ error: 'could not locate user' })
+  }
+
   if (!request.user) {
     return response.status(401).json({ error: 'invalid token' })
   }
-  const authenticatedUser = request.user
-  // console.log(user)
-  const user = await User.findById(authenticatedUser.id)
 
   if (!body.title) {
     response.status(400).send({ error: 'title is missing' })
