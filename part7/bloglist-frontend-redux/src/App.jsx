@@ -3,15 +3,19 @@ import Blog from './components/Blog'
 import blogService from './services/blogs'
 import Login from './components/Login'
 import Notification from './components/Notification'
+import { useDispatch, useSelector } from 'react-redux'
+import {
+  setNotification,
+  clearNotification,
+} from './reducers/notificationSlice'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
   const [user, setUser] = useState(null)
-  const [notification, setNotification] = useState({
-    message: null,
-    type: null,
-  })
+
   const [config, setConfig] = useState(null)
+  const notification = useSelector((state) => state.notification)
+  const dispatch = useDispatch()
 
   useEffect(() => {
     getBlogs()
@@ -53,15 +57,15 @@ const App = () => {
   }
 
   const handleNotification = (message, type) => {
-    setNotification({ message, type })
-    setTimeout(() => setNotification({ message: null, type: null }), 2000)
+    dispatch(setNotification({ message, type }))
+    setTimeout(() => dispatch(clearNotification()), 2000)
   }
 
   return (
     <div>
       <div
         style={
-          notification.message === null
+          notification.message === ''
             ? { display: 'none' }
             : { display: 'block' }
         }
