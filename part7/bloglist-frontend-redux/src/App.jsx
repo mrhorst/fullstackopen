@@ -88,7 +88,6 @@ const App = () => {
             user={user}
             config={config}
             handleNotification={handleNotification}
-            handleLike={handleLike}
           />
         </div>
       )}

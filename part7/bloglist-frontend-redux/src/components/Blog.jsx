@@ -3,9 +3,9 @@ import { useRef } from 'react'
 import blogService from '../services/blogs'
 import Toggable from './Toggable'
 import { useDispatch } from 'react-redux'
-import { createBlog } from '../reducers/blogSlice'
+import { createBlog, likeBlog } from '../reducers/blogSlice'
 
-const Blog = ({ blogs, user, handleNotification, handleLike, config }) => {
+const Blog = ({ blogs, user, handleNotification, config }) => {
   const dispatch = useDispatch()
 
   const handleCreateBlog = async (title, author, url) => {
@@ -79,7 +79,10 @@ const Blog = ({ blogs, user, handleNotification, handleLike, config }) => {
             <div>URL: {blog.url}</div>
             <div>
               Likes: {blog.likes}{' '}
-              <button id={blog.id} onClick={() => handleLike(blog.id)}>
+              <button
+                id={blog.id}
+                onClick={() => dispatch(likeBlog(blog, config))}
+              >
                 like
               </button>
             </div>
