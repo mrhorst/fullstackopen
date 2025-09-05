@@ -11,10 +11,10 @@ import {
 import { initializeBlogs } from './reducers/blogSlice'
 
 const App = () => {
-  const blogs = useSelector((state) => state.blogs)
   const [user, setUser] = useState(null)
-
   const [config, setConfig] = useState(null)
+
+  const blogs = useSelector((state) => state.blogs)
   const notification = useSelector((state) => state.notification)
   const dispatch = useDispatch()
 
@@ -37,17 +37,6 @@ const App = () => {
     localStorage.clear()
     setUser(null)
     setConfig(null)
-  }
-
-  const handleLike = async (blogId) => {
-    try {
-      const blog = blogs.find((b) => b.id === blogId)
-      const updatedBlog = { ...blog, likes: blog.likes + 1 }
-      await blogService.updateLikes(blogId, updatedBlog, config)
-      getBlogs()
-    } catch (e) {
-      console.log(e)
-    }
   }
 
   const handleNotification = (message, type) => {

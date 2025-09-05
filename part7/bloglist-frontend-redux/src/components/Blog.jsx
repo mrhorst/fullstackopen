@@ -1,9 +1,8 @@
 import { useState } from 'react'
 import { useRef } from 'react'
-import blogService from '../services/blogs'
 import Toggable from './Toggable'
 import { useDispatch } from 'react-redux'
-import { createBlog, likeBlog } from '../reducers/blogSlice'
+import { createBlog, deleteBlog, likeBlog } from '../reducers/blogSlice'
 
 const Blog = ({ blogs, user, handleNotification, config }) => {
   const dispatch = useDispatch()
@@ -28,29 +27,14 @@ const Blog = ({ blogs, user, handleNotification, config }) => {
   }
   const blogFormRef = useRef()
 
-  const handleDelete = async (e) => {
+  const handleDelete = async (blog) => {
     try {
-      if (
-        confirm(
-          `remove blog ${e.target.getAttribute(
-            'data-blogtitle'
-          )} by ${e.target.getAttribute('data-blogauthor')} ?`
-        )
-      ) {
-        const blogId = e.target.id
-        await blogService.deleteBlog(blogId, config)
-
-        handleNotification(
-          `blog ${e.target.getAttribute(
-            'data-blogtitle'
-          )} deleted successfully`,
-          'success'
-        )
+      if (confirm(`remove blog ${blog.title} by ${blog.author} ?`)) {
+        dispatch(deleteBlog(blog, config))
+        handleNotification(`blog ${blog.title} deleted successfully`, 'success')
       } else {
         handleNotification(
-          `did NOT delete blog ${e.target.getAttribute(
-            'blogtitle'
-          )}. reason: canceled by user`,
+          `did NOT delete blog ${blog.title}. reason: canceled by user`,
           'failure'
         )
       }
@@ -93,10 +77,8 @@ const Blog = ({ blogs, user, handleNotification, config }) => {
                   ? { display: '' }
                   : { display: 'none' }
               }
-              data-blogtitle={blog.title}
-              data-blogauthor={blog.author}
               id={blog.id}
-              onClick={handleDelete}
+              onClick={() => handleDelete(blog)}
             >
               delete
             </button>
