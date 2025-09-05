@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 import Blog from './components/Blog'
-import blogService from './services/blogs'
 import Login from './components/Login'
 import Notification from './components/Notification'
 import { useDispatch, useSelector } from 'react-redux'
@@ -9,12 +8,12 @@ import {
   clearNotification,
 } from './reducers/notificationSlice'
 import { initializeBlogs } from './reducers/blogSlice'
+import { authFromLocalStorage, logout } from './reducers/userSlice'
 
 const App = () => {
-  const [user, setUser] = useState(null)
+  const user = useSelector((state) => state.user)
   const [config, setConfig] = useState(null)
 
-  const blogs = useSelector((state) => state.blogs)
   const notification = useSelector((state) => state.notification)
   const dispatch = useDispatch()
 
@@ -22,20 +21,13 @@ const App = () => {
     dispatch(initializeBlogs())
 
     if (user === null) {
-      const loggedUser = localStorage.getItem('loggedUser')
-      if (loggedUser) {
-        const user = JSON.parse(loggedUser)
-        setUser(user)
-        setConfig({
-          headers: { Authorization: `Bearer ${user.token}` },
-        })
-      }
+      dispatch(authFromLocalStorage(setConfig))
     }
   }, [user])
 
-  const logout = () => {
+  const logoutUser = () => {
     localStorage.clear()
-    setUser(null)
+    dispatch(logout())
     setConfig(null)
   }
 
@@ -58,9 +50,7 @@ const App = () => {
       {user === null ? (
         <div>
           <Login
-            setUser={setUser}
             setConfig={setConfig}
-            user={user}
             handleNotification={handleNotification}
           />
         </div>
@@ -69,15 +59,10 @@ const App = () => {
           <h2>blogs</h2>
 
           <p>
-            {user.name} logged in <button onClick={logout}>logout</button>
+            {user.name} logged in <button onClick={logoutUser}>logout</button>
           </p>
 
-          <Blog
-            blogs={blogs}
-            user={user}
-            config={config}
-            handleNotification={handleNotification}
-          />
+          <Blog config={config} handleNotification={handleNotification} />
         </div>
       )}
     </div>

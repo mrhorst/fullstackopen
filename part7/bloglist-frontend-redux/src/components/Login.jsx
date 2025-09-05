@@ -1,30 +1,18 @@
 import { useState } from 'react'
-import loginService from '../services/login'
+import { login } from '../reducers/userSlice'
+import { useDispatch, useSelector } from 'react-redux'
 
-const Login = ({ setConfig, setUser, handleNotification }) => {
+const Login = ({ setConfig, handleNotification }) => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
+  const user = useSelector((state) => state.user)
+  const dispatch = useDispatch()
 
   const handleLogin = async (e) => {
     e.preventDefault()
-    try {
-      const user = await loginService.login({
-        username,
-        password,
-      })
-
-      window.localStorage.setItem('loggedUser', JSON.stringify(user))
-
-      setUser(user)
-      setConfig({
-        headers: { Authorization: `Bearer ${user.token}` },
-      })
-      setUsername('')
-      setPassword('')
-      handleNotification(`Welcome, ${user.name}!`, 'success')
-    } catch (e) {
-      handleNotification(e.response.data.error, 'failure')
-    }
+    dispatch(login({ username, password }, setConfig, handleNotification))
+    setUsername('')
+    setPassword('')
   }
 
   const handleInput = (e) => {

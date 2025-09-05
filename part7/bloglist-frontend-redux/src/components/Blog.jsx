@@ -1,11 +1,13 @@
 import { useState } from 'react'
 import { useRef } from 'react'
 import Toggable from './Toggable'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { createBlog, deleteBlog, likeBlog } from '../reducers/blogSlice'
 
-const Blog = ({ blogs, user, handleNotification, config }) => {
+const Blog = ({ handleNotification, config }) => {
   const dispatch = useDispatch()
+  const blogs = useSelector((state) => state.blogs)
+  const user = useSelector((state) => state.user)
 
   const handleCreateBlog = async (title, author, url) => {
     try {
