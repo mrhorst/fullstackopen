@@ -1,11 +1,10 @@
 import { useState } from 'react'
 import { login } from '../reducers/userSlice'
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
 
 const Login = ({ handleNotification }) => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
-  const user = useSelector((state) => state.user)
   const dispatch = useDispatch()
 
   const handleLogin = async (e) => {

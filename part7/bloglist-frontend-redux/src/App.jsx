@@ -1,8 +1,10 @@
-import { useState, useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { useEffect } from 'react'
+
 import Blog from './components/Blog'
 import Login from './components/Login'
 import Notification from './components/Notification'
-import { useDispatch, useSelector } from 'react-redux'
+
 import {
   setNotification,
   clearNotification,
@@ -12,7 +14,6 @@ import { authFromLocalStorage, logout } from './reducers/userSlice'
 
 const App = () => {
   const user = useSelector((state) => state.user)
-
   const notification = useSelector((state) => state.notification)
   const dispatch = useDispatch()
 
@@ -36,19 +37,9 @@ const App = () => {
 
   return (
     <div>
-      <div
-        style={
-          notification.message === ''
-            ? { display: 'none' }
-            : { display: 'block' }
-        }
-      >
-        <Notification message={notification.message} type={notification.type} />
-      </div>
+      <Notification message={notification.message} type={notification.type} />
       {user === null ? (
-        <div>
-          <Login handleNotification={handleNotification} />
-        </div>
+        <Login handleNotification={handleNotification} />
       ) : (
         <div>
           <h2>blogs</h2>

@@ -1,7 +1,8 @@
-import { useState } from 'react'
-import { useRef } from 'react'
-import Toggable from './Toggable'
+import { useState, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+
+import Toggable from './Toggable'
+
 import { createBlog, deleteBlog, likeBlog } from '../reducers/blogSlice'
 
 const Blog = ({ handleNotification }) => {
@@ -9,40 +10,22 @@ const Blog = ({ handleNotification }) => {
   const blogs = useSelector((state) => state.blogs)
   const user = useSelector((state) => state.user)
   const config = useSelector((state) => state.user.config)
-
-  const handleCreateBlog = async (title, author, url) => {
-    try {
-      const blog = {
-        title,
-        author,
-        url,
-      }
-
-      dispatch(createBlog(blog, config))
-      handleNotification(
-        `new blog added: ${blog.title} by ${blog.author}`,
-        'success'
-      )
-      blogFormRef.current.toggleVisibility()
-    } catch (e) {
-      handleNotification(e.response.data.error, 'failure')
-    }
-  }
   const blogFormRef = useRef()
 
+  const handleCreateBlog = async (title, author, url) => {
+    const blog = { title, author, url }
+    dispatch(createBlog(blog, config, handleNotification))
+    blogFormRef.current.toggleVisibility()
+  }
+
   const handleDelete = async (blog) => {
-    try {
-      if (confirm(`remove blog ${blog.title} by ${blog.author} ?`)) {
-        dispatch(deleteBlog(blog, config))
-        handleNotification(`blog ${blog.title} deleted successfully`, 'success')
-      } else {
-        handleNotification(
-          `did NOT delete blog ${blog.title}. reason: canceled by user`,
-          'failure'
-        )
-      }
-    } catch (e) {
-      handleNotification(e.response.data.error, 'failure')
+    if (confirm(`remove blog ${blog.title} by ${blog.author} ?`)) {
+      dispatch(deleteBlog(blog, config, handleNotification))
+    } else {
+      handleNotification(
+        `did NOT delete blog ${blog.title}. reason: canceled by user`,
+        'failure'
+      )
     }
   }
 

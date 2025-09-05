@@ -30,11 +30,19 @@ export const initializeBlogs = () => {
   }
 }
 
-export const createBlog = (blog, config) => {
+export const createBlog = (blog, config, handleNotification) => {
   return async (dispatch) => {
-    const createdBlog = await blogService.createBlog(blog, config)
+    try {
+      const createdBlog = await blogService.createBlog(blog, config)
 
-    dispatch(appendBlog(createdBlog))
+      dispatch(appendBlog(createdBlog))
+      handleNotification(
+        `new blog added: ${blog.title} by ${blog.author}`,
+        'success'
+      )
+    } catch (e) {
+      handleNotification(`could not create blog: ${blog.title}.`, 'failure')
+    }
   }
 }
 
@@ -46,10 +54,19 @@ export const likeBlog = (blogToLike, config) => {
   }
 }
 
-export const deleteBlog = (blogToDelete, config) => {
+export const deleteBlog = (blogToDelete, config, handleNotification) => {
   return async (dispatch) => {
-    await blogService.deleteBlog(blogToDelete.id, config)
-    dispatch(removeBlog(blogToDelete))
+    try {
+      await blogService.deleteBlog(blogToDelete.id, config)
+      dispatch(removeBlog(blogToDelete))
+      handleNotification(
+        `blog ${blogToDelete.title} deleted successfully`,
+        'success'
+      )
+      console.log()
+    } catch (e) {
+      handleNotification(e.response.data.error, 'failure')
+    }
   }
 }
 
