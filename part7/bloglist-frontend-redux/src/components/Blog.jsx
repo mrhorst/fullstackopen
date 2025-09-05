@@ -4,10 +4,11 @@ import Toggable from './Toggable'
 import { useDispatch, useSelector } from 'react-redux'
 import { createBlog, deleteBlog, likeBlog } from '../reducers/blogSlice'
 
-const Blog = ({ handleNotification, config }) => {
+const Blog = ({ handleNotification }) => {
   const dispatch = useDispatch()
   const blogs = useSelector((state) => state.blogs)
   const user = useSelector((state) => state.user)
+  const config = useSelector((state) => state.user.config)
 
   const handleCreateBlog = async (title, author, url) => {
     try {

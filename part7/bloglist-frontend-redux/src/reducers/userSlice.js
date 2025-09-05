@@ -16,14 +16,14 @@ const userSlice = createSlice({
   },
 })
 
-export const login = (credentials, setConfig, handleNotification) => {
+export const login = (credentials, handleNotification) => {
   return async (dispatch) => {
     try {
       const user = await loginService.login(credentials)
       window.localStorage.setItem('loggedUser', JSON.stringify(user))
-      setConfig({
+      user.config = {
         headers: { Authorization: `Bearer ${user.token}` },
-      })
+      }
 
       dispatch(authenticateUser(user))
       handleNotification(`Welcome, ${user.name}!`, 'success')
@@ -34,15 +34,15 @@ export const login = (credentials, setConfig, handleNotification) => {
   }
 }
 
-export const authFromLocalStorage = (setConfig) => {
+export const authFromLocalStorage = () => {
   return async (dispatch) => {
     const loggedUser = localStorage.getItem('loggedUser')
     if (loggedUser) {
       const user = JSON.parse(loggedUser)
-      dispatch(authenticateUser(user))
-      setConfig({
+      user.config = {
         headers: { Authorization: `Bearer ${user.token}` },
-      })
+      }
+      dispatch(authenticateUser(user))
     }
   }
 }

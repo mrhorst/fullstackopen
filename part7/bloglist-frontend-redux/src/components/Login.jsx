@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { login } from '../reducers/userSlice'
 import { useDispatch, useSelector } from 'react-redux'
 
-const Login = ({ setConfig, handleNotification }) => {
+const Login = ({ handleNotification }) => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const user = useSelector((state) => state.user)
@@ -10,7 +10,7 @@ const Login = ({ setConfig, handleNotification }) => {
 
   const handleLogin = async (e) => {
     e.preventDefault()
-    dispatch(login({ username, password }, setConfig, handleNotification))
+    dispatch(login({ username, password }, handleNotification))
     setUsername('')
     setPassword('')
   }

@@ -12,7 +12,6 @@ import { authFromLocalStorage, logout } from './reducers/userSlice'
 
 const App = () => {
   const user = useSelector((state) => state.user)
-  const [config, setConfig] = useState(null)
 
   const notification = useSelector((state) => state.notification)
   const dispatch = useDispatch()
@@ -21,14 +20,13 @@ const App = () => {
     dispatch(initializeBlogs())
 
     if (user === null) {
-      dispatch(authFromLocalStorage(setConfig))
+      dispatch(authFromLocalStorage())
     }
   }, [user])
 
   const logoutUser = () => {
     localStorage.clear()
     dispatch(logout())
-    setConfig(null)
   }
 
   const handleNotification = (message, type) => {
@@ -49,10 +47,7 @@ const App = () => {
       </div>
       {user === null ? (
         <div>
-          <Login
-            setConfig={setConfig}
-            handleNotification={handleNotification}
-          />
+          <Login handleNotification={handleNotification} />
         </div>
       ) : (
         <div>
@@ -62,7 +57,7 @@ const App = () => {
             {user.name} logged in <button onClick={logoutUser}>logout</button>
           </p>
 
-          <Blog config={config} handleNotification={handleNotification} />
+          <Blog handleNotification={handleNotification} />
         </div>
       )}
     </div>
