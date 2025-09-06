@@ -6,13 +6,17 @@ const getAll = async () => {
   return response.data
 }
 
-const createBlog = async (blog, config) => {
+const createBlog = async ({ blog, config }) => {
   const response = await axios.post(baseUrl, blog, config)
   return response.data
 }
 
-const updateLikes = async (blogId, updatedBlog, config) => {
-  const response = await axios.put(`${baseUrl}/${blogId}`, updatedBlog, config)
+const updateLikes = async (updatedBlog, config) => {
+  const response = await axios.put(
+    `${baseUrl}/${updatedBlog.id}`,
+    updatedBlog,
+    config
+  )
   return response.data
 }
 

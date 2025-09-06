@@ -22,28 +22,10 @@ const App = () => {
     }
   }, [user])
 
-  const getBlogs = async () => {
-    const blogs = await blogService.getAll()
-    blogs.sort((a, b) => b.likes - a.likes)
-
-    setBlogs(blogs)
-  }
-
   const logout = () => {
     localStorage.clear()
     setUser(null)
     setConfig(null)
-  }
-
-  const handleLike = async (blogId) => {
-    try {
-      const blog = blogs.find((b) => b.id === blogId)
-      const updatedBlog = { ...blog, likes: blog.likes + 1 }
-      await blogService.updateLikes(blogId, updatedBlog, config)
-      getBlogs()
-    } catch (e) {
-      console.log(e)
-    }
   }
 
   return (
@@ -62,7 +44,7 @@ const App = () => {
             {user.name} logged in <button onClick={logout}>logout</button>
           </p>
 
-          <Blog user={user} config={config} handleLike={handleLike} />
+          <Blog user={user} config={config} />
         </div>
       )}
     </div>
