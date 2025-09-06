@@ -4,9 +4,30 @@ import blogService from '../services/blogs'
 import Toggable from './Toggable'
 import { useContext } from 'react'
 import { NotificationContext } from '../context/NotificationContext'
+import { useQuery } from '@tanstack/react-query'
+import { getBlogs } from '../requests'
 
-const Blog = ({ getBlogs, blogs, user, handleLike, config }) => {
+const Blog = ({ user, handleLike, config }) => {
+  const blogFormRef = useRef()
   const { showNotification } = useContext(NotificationContext)
+  const {
+    data: blogs,
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
+    queryKey: ['blogs'],
+    queryFn: getBlogs,
+  })
+
+  if (isLoading) {
+    return <div>loading blogs...</div>
+  }
+
+  if (isError) {
+    return <div>error: {error.message}</div>
+  }
+
   const handleCreateBlog = async (title, author, url) => {
     try {
       const blog = {
@@ -21,12 +42,10 @@ const Blog = ({ getBlogs, blogs, user, handleLike, config }) => {
         'success'
       )
       blogFormRef.current.toggleVisibility()
-      getBlogs()
     } catch (e) {
       showNotification(e.response.data.error, 'failure')
     }
   }
-  const blogFormRef = useRef()
 
   const handleDelete = async (e) => {
     try {
@@ -39,7 +58,7 @@ const Blog = ({ getBlogs, blogs, user, handleLike, config }) => {
       ) {
         const blogId = e.target.id
         await blogService.deleteBlog(blogId, config)
-        getBlogs()
+
         showNotification(
           `blog ${e.target.getAttribute(
             'data-blogtitle'

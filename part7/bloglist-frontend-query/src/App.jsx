@@ -10,8 +10,6 @@ const App = () => {
   const [config, setConfig] = useState(null)
 
   useEffect(() => {
-    getBlogs()
-
     if (user === null) {
       const loggedUser = localStorage.getItem('loggedUser')
       if (loggedUser) {
@@ -64,13 +62,7 @@ const App = () => {
             {user.name} logged in <button onClick={logout}>logout</button>
           </p>
 
-          <Blog
-            getBlogs={getBlogs}
-            blogs={blogs}
-            user={user}
-            config={config}
-            handleLike={handleLike}
-          />
+          <Blog user={user} config={config} handleLike={handleLike} />
         </div>
       )}
     </div>
