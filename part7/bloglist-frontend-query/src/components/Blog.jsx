@@ -1,14 +1,17 @@
-import { useState } from 'react'
-import { useRef } from 'react'
-import Toggable from './Toggable'
-import { useContext } from 'react'
-import { NotificationContext } from '../context/NotificationContext'
+import { useContext, useState, useRef } from 'react'
 import { useQueryClient, useMutation, useQuery } from '@tanstack/react-query'
+
 import { createBlog, getBlogs, deleteBlog, likeBlog } from '../requests'
 
-const Blog = ({ user, config }) => {
+import { NotificationContext } from '../context/NotificationContext'
+import { UserContext } from '../context/UserContext'
+
+import Toggable from './Toggable'
+
+const Blog = () => {
   const blogFormRef = useRef()
   const { showNotification } = useContext(NotificationContext)
+  const { user, config } = useContext(UserContext)
   const queryClient = useQueryClient()
 
   const getBlogsMutation = useQuery({

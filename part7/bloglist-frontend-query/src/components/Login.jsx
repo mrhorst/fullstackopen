@@ -1,26 +1,20 @@
 import { useState, useContext } from 'react'
 import loginService from '../services/login'
 import { NotificationContext } from '../context/NotificationContext'
+import { UserContext } from '../context/UserContext'
 
-const Login = ({ setConfig, setUser }) => {
+const Login = () => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const { showNotification } = useContext(NotificationContext)
+  const { loginUser } = useContext(UserContext)
 
   const handleLogin = async (e) => {
     e.preventDefault()
     try {
-      const user = await loginService.login({
-        username,
-        password,
-      })
-
+      const user = await loginService.login({ username, password })
       window.localStorage.setItem('loggedUser', JSON.stringify(user))
-
-      setUser(user)
-      setConfig({
-        headers: { Authorization: `Bearer ${user.token}` },
-      })
+      loginUser({ user })
       setUsername('')
       setPassword('')
       showNotification(`Welcome, ${user.name}!`, 'success')

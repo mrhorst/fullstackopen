@@ -1,50 +1,42 @@
-import { useState, useEffect } from 'react'
-import Blog from './components/Blog'
-import blogService from './services/blogs'
-import Login from './components/Login'
+import { useEffect, useContext } from 'react'
 import Notification from './components/Notification'
+import { UserContext } from './context/UserContext'
+import Blog from './components/Blog'
+import Login from './components/Login'
 
 const App = () => {
-  const [blogs, setBlogs] = useState([])
-  const [user, setUser] = useState(null)
-  const [config, setConfig] = useState(null)
+  const { user, loginUser, logoutUser } = useContext(UserContext)
 
   useEffect(() => {
     if (user === null) {
-      const loggedUser = localStorage.getItem('loggedUser')
-      if (loggedUser) {
-        const user = JSON.parse(loggedUser)
-        setUser(user)
-        setConfig({
-          headers: { Authorization: `Bearer ${user.token}` },
-        })
+      const loggedUserJSON = localStorage.getItem('loggedUser')
+
+      if (loggedUserJSON) {
+        const loggedUser = JSON.parse(loggedUserJSON)
+        loginUser({ user: loggedUser })
       }
     }
-  }, [user])
+  }, [user, loginUser])
 
   const logout = () => {
-    localStorage.clear()
-    setUser(null)
-    setConfig(null)
+    localStorage.removeItem('loggedUser')
+    logoutUser()
   }
 
   return (
     <div>
       <Notification />
-
       {user === null ? (
         <div>
-          <Login setUser={setUser} setConfig={setConfig} user={user} />
+          <Login />
         </div>
       ) : (
         <div>
           <h2>blogs</h2>
-
           <p>
             {user.name} logged in <button onClick={logout}>logout</button>
           </p>
-
-          <Blog user={user} config={config} />
+          <Blog />
         </div>
       )}
     </div>
