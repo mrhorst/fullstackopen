@@ -22,7 +22,7 @@ export const UserContext = createContext()
 export const UserProvider = ({ children }) => {
   const [state, dispatch] = useReducer(reducer, initialState)
 
-  const loginUser = ({ user }) => {
+  const loginUser = (user) => {
     const config = {
       headers: { Authorization: `Bearer ${user.token}` },
     }

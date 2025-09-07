@@ -1,7 +1,8 @@
 import { useState, useContext } from 'react'
-import loginService from '../services/login'
 import { NotificationContext } from '../context/NotificationContext'
 import { UserContext } from '../context/UserContext'
+import { useMutation } from '@tanstack/react-query'
+import { login } from '../requests'
 
 const Login = () => {
   const [username, setUsername] = useState('')
@@ -9,18 +10,23 @@ const Login = () => {
   const { showNotification } = useContext(NotificationContext)
   const { loginUser } = useContext(UserContext)
 
-  const handleLogin = async (e) => {
-    e.preventDefault()
-    try {
-      const user = await loginService.login({ username, password })
+  const loginMutation = useMutation({
+    mutationFn: login,
+    onSuccess: (user) => {
+      loginUser(user)
       window.localStorage.setItem('loggedUser', JSON.stringify(user))
-      loginUser({ user })
+      showNotification(`Welcome, ${user.name}!`, 'success')
       setUsername('')
       setPassword('')
-      showNotification(`Welcome, ${user.name}!`, 'success')
-    } catch (e) {
-      showNotification(e.response.data.error, 'failure')
-    }
+    },
+    onError: (error) => {
+      showNotification(error.response.data.error, 'failure')
+    },
+  })
+
+  const handleLogin = async (e) => {
+    e.preventDefault()
+    loginMutation.mutate({ username, password })
   }
 
   const handleInput = (e) => {

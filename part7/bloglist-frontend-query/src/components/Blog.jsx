@@ -14,7 +14,7 @@ const Blog = () => {
   const { user, config } = useContext(UserContext)
   const queryClient = useQueryClient()
 
-  const getBlogsMutation = useQuery({
+  const blogsQuery = useQuery({
     queryKey: ['blogs'],
     queryFn: getBlogs,
   })
@@ -63,18 +63,17 @@ const Blog = () => {
     },
     onError: (error, _var, context) => {
       showNotification(error.response.data.error, 'failure')
-
       queryClient.setQueryData(['blogs'], context)
     },
   })
 
-  const blogs = getBlogsMutation.data
+  const blogs = blogsQuery.data
 
   const mutations = [
     addBlogMutation,
     deleteBlogMutation,
     likeBlogMutation,
-    getBlogsMutation,
+    blogsQuery,
   ]
 
   const isLoading = mutations.some((mutation) => mutation.isLoading)

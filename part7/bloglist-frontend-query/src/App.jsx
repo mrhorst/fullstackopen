@@ -13,7 +13,7 @@ const App = () => {
 
       if (loggedUserJSON) {
         const loggedUser = JSON.parse(loggedUserJSON)
-        loginUser({ user: loggedUser })
+        loginUser(loggedUser)
       }
     }
   }, [user, loginUser])
