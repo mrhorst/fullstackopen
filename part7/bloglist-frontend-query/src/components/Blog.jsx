@@ -8,6 +8,7 @@ import {
   deleteBlog,
   likeBlog,
   addComment,
+  getBlogById,
 } from '../requests'
 
 import { NotificationContext } from '../context/NotificationContext'
@@ -90,19 +91,28 @@ export const Blog = () => {
   const queryClient = useQueryClient()
   const navigate = useNavigate()
 
-  const blogsQuery = useQuery({
-    queryFn: getBlogs,
-    queryKey: ['blogs'],
+  const blogQuery = useQuery({
+    queryKey: ['blog', id],
+    queryFn: ({ queryKey }) => getBlogById(queryKey[1]),
+    initialData: () => {
+      const listOfBlogs = queryClient.getQueryData(['blogs'])
+      return listOfBlogs?.find((b) => b.id === id)
+    },
   })
 
   const { config } = useContext(UserContext)
   const { showNotification } = useContext(NotificationContext)
 
+  const invalidateBlogs = () => {
+    queryClient.invalidateQueries(['blogs'])
+    queryClient.invalidateQueries(['blog'])
+  }
+
   const likeBlogMutation = useMutation({
     mutationFn: likeBlog,
     onSuccess: (likedBlog) => {
       showNotification(`You liked '${likedBlog.title}'!`, 'success')
-      queryClient.invalidateQueries(['blogs'])
+      invalidateBlogs()
     },
     onMutate: ({ blog }) => {
       const previousBlogs = queryClient.getQueryData(['blogs'])
@@ -124,7 +134,7 @@ export const Blog = () => {
     mutationFn: deleteBlog,
     onSuccess: (_data, { blog }) => {
       showNotification(`blog ${blog.title} deleted successfully`, 'success')
-      queryClient.invalidateQueries(['blogs'])
+      invalidateBlogs()
       navigate('/')
     },
     onError: (error) => {
@@ -132,9 +142,9 @@ export const Blog = () => {
     },
   })
 
-  const blogs = blogsQuery.data
+  const blog = blogQuery.data
 
-  const mutations = [likeBlogMutation, blogsQuery]
+  const mutations = [likeBlogMutation, blogQuery]
 
   const isLoading = mutations.some((mutation) => mutation.isLoading)
   const isError = mutations.some((mutation) => mutation.isError)
@@ -162,8 +172,6 @@ export const Blog = () => {
     }
   }
 
-  const blog = blogs.find((b) => b.id === id)
-
   return (
     <div>
       <button onClick={() => navigate(-1)}>back</button>
@@ -184,15 +192,32 @@ export const Blog = () => {
 
 const Comments = ({ blog }) => {
   const [comment, setComment] = useState('')
+  const { showNotification } = useContext(NotificationContext)
+
+  const queryClient = useQueryClient()
+
+  const commentMutation = useMutation({
+    mutationFn: addComment,
+    onSuccess: () => {
+      queryClient.invalidateQueries(['blog'])
+      queryClient.invalidateQueries(['blogs'])
+      setComment('')
+      showNotification('you left a comment', 'success')
+    },
+    onError: (error) => {
+      showNotification(`error: ${error.message}`, 'failure')
+    },
+  })
+
   const handleSubmit = (e) => {
     e.preventDefault()
-    addComment(blog.id, comment)
+    commentMutation.mutate({ blogId: blog.id, comment })
   }
   return (
     <div>
       <h3>comments</h3>
       <form onSubmit={handleSubmit}>
-        <input onChange={(e) => setComment(e.target.value)} />
+        <input onChange={(e) => setComment(e.target.value)} value={comment} />
         <button>add comment</button>
       </form>
       <ul>

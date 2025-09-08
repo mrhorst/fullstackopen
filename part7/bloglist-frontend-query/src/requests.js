@@ -34,7 +34,7 @@ export const getUsers = async () => {
   return response.data
 }
 
-export const addComment = async (blogId, comment) => {
+export const addComment = async ({ blogId, comment }) => {
   const response = await blogService.commentBlog(blogId, { comment })
   return response.data
 }
