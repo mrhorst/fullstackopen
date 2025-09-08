@@ -160,6 +160,7 @@ export const Blog = () => {
 
   return (
     <div>
+      <button onClick={() => navigate(-1)}>back</button>
       <h2>
         {blog.title}, by {blog.author}
       </h2>

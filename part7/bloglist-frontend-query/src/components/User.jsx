@@ -1,8 +1,9 @@
 import { useQuery } from '@tanstack/react-query'
 import { getUsers } from '../requests'
-import { useParams, Link } from 'react-router-dom'
+import { useParams, Link, useNavigate } from 'react-router-dom'
 
 const Users = () => {
+  const navigate = useNavigate()
   const {
     data: users,
     isLoading,
@@ -23,6 +24,7 @@ const Users = () => {
   }
   return (
     <div>
+      <button onClick={() => navigate(-1)}>back</button>
       <h2>users</h2>
       <table>
         <thead>
@@ -49,6 +51,7 @@ const Users = () => {
 }
 
 const User = () => {
+  const navigate = useNavigate()
   const {
     data: users,
     isLoading,
@@ -71,6 +74,7 @@ const User = () => {
   const userBlogs = user.blogs
   return (
     <div>
+      <button onClick={() => navigate(-1)}>back</button>
       <h1>{user.name}</h1>
       <h4>added blogs</h4>
       <ul>
