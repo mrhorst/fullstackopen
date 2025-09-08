@@ -1,5 +1,6 @@
 import { useContext, useState, useRef } from 'react'
 import { useQueryClient, useMutation, useQuery } from '@tanstack/react-query'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 
 import { createBlog, getBlogs, deleteBlog, likeBlog } from '../requests'
 
@@ -8,10 +9,10 @@ import { UserContext } from '../context/UserContext'
 
 import Toggable from './Toggable'
 
-const Blog = () => {
+export const Blogs = () => {
   const blogFormRef = useRef()
   const { showNotification } = useContext(NotificationContext)
-  const { user, config } = useContext(UserContext)
+  const { config } = useContext(UserContext)
   const queryClient = useQueryClient()
 
   const blogsQuery = useQuery({
@@ -34,16 +35,62 @@ const Blog = () => {
     },
   })
 
-  const deleteBlogMutation = useMutation({
-    mutationFn: deleteBlog,
-    onSuccess: (_data, { blog }) => {
-      showNotification(`blog ${blog.title} deleted successfully`, 'success')
-      queryClient.invalidateQueries(['blogs'])
-    },
-    onError: (error) => {
-      showNotification(error.response.data.error, 'failure')
-    },
+  const blogs = blogsQuery.data
+
+  const mutations = [addBlogMutation, blogsQuery]
+
+  const isLoading = mutations.some((mutation) => mutation.isLoading)
+  const isError = mutations.some((mutation) => mutation.isError)
+
+  if (isLoading) {
+    return <div>loading blogs...</div>
+  }
+
+  if (isError) {
+    return <div>error</div>
+  }
+
+  const handleCreateBlog = async (title, author, url) => {
+    const blog = { title, author, url }
+    addBlogMutation.mutate({ blog, config })
+  }
+
+  return (
+    <div>
+      <Toggable
+        ref={blogFormRef}
+        hideLabel={'hide form'}
+        showLabel={'show form'}
+      >
+        <AddBlog handleCreateBlog={handleCreateBlog} />
+      </Toggable>
+      {blogs.map((blog) => (
+        <div
+          style={{ border: '1px solid', padding: '5px', margin: '5px 0 5px 0' }}
+          key={blog.id}
+          className='blogs'
+        >
+          <Link to={`/blog/${blog.id}`}>
+            {blog.title}, by {blog.author}
+          </Link>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+export const Blog = () => {
+  const id = useParams().id
+  const queryClient = useQueryClient()
+  const navigate = useNavigate()
+
+  const blogsQuery = useQuery({
+    queryFn: getBlogs,
+    queryKey: ['blogs'],
   })
+
+  const { config } = useContext(UserContext)
+  const { showNotification } = useContext(NotificationContext)
 
   const likeBlogMutation = useMutation({
     mutationFn: likeBlog,
@@ -67,29 +114,35 @@ const Blog = () => {
     },
   })
 
+  const deleteBlogMutation = useMutation({
+    mutationFn: deleteBlog,
+    onSuccess: (_data, { blog }) => {
+      showNotification(`blog ${blog.title} deleted successfully`, 'success')
+      queryClient.invalidateQueries(['blogs'])
+      navigate('/')
+    },
+    onError: (error) => {
+      showNotification(error.response.data.error, 'failure')
+    },
+  })
+
   const blogs = blogsQuery.data
 
-  const mutations = [
-    addBlogMutation,
-    deleteBlogMutation,
-    likeBlogMutation,
-    blogsQuery,
-  ]
+  const mutations = [likeBlogMutation, blogsQuery]
 
   const isLoading = mutations.some((mutation) => mutation.isLoading)
   const isError = mutations.some((mutation) => mutation.isError)
 
   if (isLoading) {
-    return <div>loading blogs...</div>
+    return <div>loading...</div>
   }
 
   if (isError) {
-    return <div>error</div>
+    return <div>error: {likeBlogMutation.error.message}</div>
   }
 
-  const handleCreateBlog = async (title, author, url) => {
-    const blog = { title, author, url }
-    addBlogMutation.mutate({ blog, config })
+  const handleLike = async (blog) => {
+    likeBlogMutation.mutate({ blog, config })
   }
 
   const handleDelete = async (blog) => {
@@ -103,47 +156,20 @@ const Blog = () => {
     }
   }
 
-  const handleLike = async (blog) => {
-    likeBlogMutation.mutate({ blog, config })
-  }
+  const blog = blogs.find((b) => b.id === id)
 
   return (
     <div>
-      <Toggable
-        ref={blogFormRef}
-        hideLabel={'hide form'}
-        showLabel={'show form'}
-      >
-        <AddBlog handleCreateBlog={handleCreateBlog} />
-      </Toggable>
-      {blogs.map((blog) => (
-        <div
-          style={{ border: '1px solid', padding: '5px', margin: '5px 0 5px 0' }}
-          key={blog.id}
-          className='blogs'
-        >
-          Title:{blog.title} -{blog.author}
-          <Toggable showLabel={'show info'} hideLabel={'hide info'}>
-            <div>URL: {blog.url}</div>
-            <div>
-              Likes: {blog.likes}{' '}
-              <button id={blog.id} onClick={() => handleLike(blog)}>
-                like
-              </button>
-            </div>
-            <div>User: {blog.user.name}</div>
-            <button
-              style={
-                user.username === blog.user.username ? {} : { display: 'none' }
-              }
-              id={blog.id}
-              onClick={() => handleDelete(blog)}
-            >
-              delete
-            </button>
-          </Toggable>
-        </div>
-      ))}
+      <h2>
+        {blog.title}, by {blog.author}
+      </h2>
+      <a href={blog.url}>{blog.url}</a>
+      <p>
+        {blog.likes} likes{' '}
+        <button onClick={() => handleLike(blog)}>like</button>
+      </p>
+      <p>added by {blog.user.name}</p>
+      <button onClick={() => handleDelete(blog)}>delete</button>
     </div>
   )
 }
@@ -197,5 +223,3 @@ export const AddBlog = ({ handleCreateBlog }) => {
     </div>
   )
 }
-
-export default Blog

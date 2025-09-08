@@ -2,13 +2,13 @@ import { useEffect, useContext } from 'react'
 import Notification from './components/Notification'
 import { Users, User } from './components/User'
 import { UserContext } from './context/UserContext'
-import Blog from './components/Blog'
+import { Blogs, Blog } from './components/Blog'
 import Login from './components/Login'
 import { Routes, Route } from 'react-router-dom'
 import Navbar from './components/Navbar'
 
 const App = () => {
-  const { user, loginUser, logoutUser } = useContext(UserContext)
+  const { user, loginUser } = useContext(UserContext)
 
   useEffect(() => {
     if (user === null) {
@@ -21,11 +21,6 @@ const App = () => {
     }
   }, [user, loginUser])
 
-  const logout = () => {
-    localStorage.removeItem('loggedUser')
-    logoutUser()
-  }
-
   return (
     <div>
       <Notification />
@@ -37,12 +32,10 @@ const App = () => {
         <div>
           <Navbar />
           <h2>blogs</h2>
-          <p>
-            {user.name} logged in <button onClick={logout}>logout</button>
-          </p>
           <Routes>
-            <Route path='/' element={<Blog />} />
-            <Route path='/blogs' element={<Blog />} />
+            <Route path='/' element={<Blogs />} />
+            <Route path='/blogs' element={<Blogs />} />
+            <Route path='/blog/:id' element={<Blog />} />
             <Route path='/users' element={<Users />} />
             <Route path='/users/:id' element={<User />} />
           </Routes>
