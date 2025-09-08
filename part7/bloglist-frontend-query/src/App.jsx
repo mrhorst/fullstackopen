@@ -1,10 +1,10 @@
 import { useEffect, useContext } from 'react'
 import Notification from './components/Notification'
-import User from './components/User'
+import { Users, User } from './components/User'
 import { UserContext } from './context/UserContext'
 import Blog from './components/Blog'
 import Login from './components/Login'
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route } from 'react-router-dom'
 import Navbar from './components/Navbar'
 
 const App = () => {
@@ -43,7 +43,8 @@ const App = () => {
           <Routes>
             <Route path='/' element={<Blog />} />
             <Route path='/blogs' element={<Blog />} />
-            <Route path='/users' element={<User />} />
+            <Route path='/users' element={<Users />} />
+            <Route path='/users/:id' element={<User />} />
           </Routes>
         </div>
       )}

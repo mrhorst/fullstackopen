@@ -31,5 +31,5 @@ export const likeBlog = async ({ blog, config }) => {
 
 export const getUsers = async () => {
   const response = await userService.getAll()
-  return response
+  return response.data
 }
