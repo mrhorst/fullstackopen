@@ -30,4 +30,15 @@ const commentBlog = async (blogId, comment) => {
   return response
 }
 
-export default { getAll, createBlog, updateLikes, deleteBlog, commentBlog }
+const getBlog = async (blogId) => {
+  const response = await axios.get(`${baseUrl}/${blogId}`)
+  return response
+}
+export default {
+  getAll,
+  createBlog,
+  updateLikes,
+  deleteBlog,
+  commentBlog,
+  getBlog,
+}

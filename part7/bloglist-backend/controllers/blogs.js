@@ -123,4 +123,13 @@ blogsRouter.post('/:id/comments', async (request, response) => {
   response.status(201).json(savedComment)
 })
 
+blogsRouter.get('/:id', async (request, response) => {
+  const id = request.params.id
+  const blog = await Blog.findById(id)
+  if (!blog) {
+    return response.status(404).json({ error: 'blog not found' })
+  }
+  return response.status(200).send(blog)
+})
+
 module.exports = blogsRouter

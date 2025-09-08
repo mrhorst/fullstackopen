@@ -38,3 +38,8 @@ export const addComment = async (blogId, comment) => {
   const response = await blogService.commentBlog(blogId, { comment })
   return response.data
 }
+
+export const getBlogById = async (blogId) => {
+  const response = await blogService.getBlog(blogId)
+  return response.data
+}

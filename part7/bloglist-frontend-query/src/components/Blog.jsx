@@ -184,7 +184,6 @@ export const Blog = () => {
 
 const Comments = ({ blog }) => {
   const [comment, setComment] = useState('')
-
   const handleSubmit = (e) => {
     e.preventDefault()
     addComment(blog.id, comment)
