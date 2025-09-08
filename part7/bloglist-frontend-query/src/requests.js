@@ -1,5 +1,6 @@
 import blogService from './services/blogs'
 import loginService from './services/login'
+import userService from './services/users'
 
 export const getBlogs = async () => {
   const response = await blogService.getAll()
@@ -25,5 +26,10 @@ export const deleteBlog = async ({ blog, config }) => {
 export const likeBlog = async ({ blog, config }) => {
   const blogToLike = { ...blog, likes: blog.likes + 1 }
   const response = await blogService.updateLikes(blogToLike, config)
+  return response
+}
+
+export const getUsers = async () => {
+  const response = await userService.getAll()
   return response
 }
