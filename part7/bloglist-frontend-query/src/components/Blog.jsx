@@ -170,6 +170,12 @@ export const Blog = () => {
         <button onClick={() => handleLike(blog)}>like</button>
       </p>
       <p>added by {blog.user.name}</p>
+      <h3>comments</h3>
+      <ul>
+        {blog.comments.map((comment) => (
+          <li key={comment.id}>{comment.comment}</li>
+        ))}
+      </ul>
       <button onClick={() => handleDelete(blog)}>delete</button>
     </div>
   )
