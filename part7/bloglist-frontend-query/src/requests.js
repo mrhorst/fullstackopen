@@ -33,3 +33,8 @@ export const getUsers = async () => {
   const response = await userService.getAll()
   return response.data
 }
+
+export const addComment = async (blogId, comment) => {
+  const response = await blogService.commentBlog(blogId, { comment })
+  return response.data
+}

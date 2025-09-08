@@ -2,7 +2,13 @@ import { useContext, useState, useRef } from 'react'
 import { useQueryClient, useMutation, useQuery } from '@tanstack/react-query'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 
-import { createBlog, getBlogs, deleteBlog, likeBlog } from '../requests'
+import {
+  createBlog,
+  getBlogs,
+  deleteBlog,
+  likeBlog,
+  addComment,
+} from '../requests'
 
 import { NotificationContext } from '../context/NotificationContext'
 import { UserContext } from '../context/UserContext'
@@ -170,13 +176,31 @@ export const Blog = () => {
         <button onClick={() => handleLike(blog)}>like</button>
       </p>
       <p>added by {blog.user.name}</p>
+      <Comments blog={blog} />
+      <button onClick={() => handleDelete(blog)}>delete</button>
+    </div>
+  )
+}
+
+const Comments = ({ blog }) => {
+  const [comment, setComment] = useState('')
+
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    addComment(blog.id, comment)
+  }
+  return (
+    <div>
       <h3>comments</h3>
+      <form onSubmit={handleSubmit}>
+        <input onChange={(e) => setComment(e.target.value)} />
+        <button>add comment</button>
+      </form>
       <ul>
         {blog.comments.map((comment) => (
           <li key={comment.id}>{comment.comment}</li>
         ))}
       </ul>
-      <button onClick={() => handleDelete(blog)}>delete</button>
     </div>
   )
 }
