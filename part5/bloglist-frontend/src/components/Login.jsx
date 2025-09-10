@@ -23,7 +23,7 @@ const Login = ({ setConfig, setUser, handleNotification }) => {
       setPassword('')
       handleNotification(`Welcome, ${user.name}!`, 'success')
     } catch (e) {
-      handleNotification(e.response.data.error, 'failure')
+      handleNotification(e.response.data.error, 'error')
     }
   }
 

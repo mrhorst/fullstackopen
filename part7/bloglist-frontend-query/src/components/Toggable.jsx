@@ -1,7 +1,8 @@
 import { useState, forwardRef, useImperativeHandle } from 'react'
-import PropTypes from 'prop-types'
+import Button from '@mui/material/Button'
+import Box from '@mui/material/Box'
 
-const Toggable = forwardRef(({ children, showLabel, hideLabel }, refs) => {
+const Toggable = forwardRef(({ children }, refs) => {
   const [visible, setVisible] = useState(false)
 
   const toggleVisibility = () => {
@@ -12,23 +13,16 @@ const Toggable = forwardRef(({ children, showLabel, hideLabel }, refs) => {
     return { toggleVisibility }
   })
 
-  return visible === false ? (
-    <div>
-      <button onClick={toggleVisibility}>{showLabel}</button>
-    </div>
-  ) : (
-    <div>
-      <button onClick={toggleVisibility}>{hideLabel}</button>
-      <div>{children}</div>
-    </div>
+  return (
+    <Box sx={{ my: 4 }}>
+      <Button variant={'contained'} onClick={toggleVisibility}>
+        {visible === false ? 'Show form' : 'Hide form'}
+      </Button>
+      {visible === false ? null : <Box>{children}</Box>}
+    </Box>
   )
 })
 
 Toggable.displayName = 'Toggable'
-
-Toggable.propTypes = {
-  showLabel: PropTypes.string.isRequired,
-  hideLabel: PropTypes.string.isRequired,
-}
 
 export default Toggable

@@ -29,7 +29,7 @@ export const login = (credentials, handleNotification) => {
       handleNotification(`Welcome, ${user.name}!`, 'success')
       return user
     } catch (e) {
-      handleNotification(e.response.data.error, 'failure')
+      handleNotification(e.response.data.error, 'error')
     }
   }
 }

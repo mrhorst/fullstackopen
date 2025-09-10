@@ -41,7 +41,7 @@ export const createBlog = (blog, config, handleNotification) => {
         'success'
       )
     } catch (e) {
-      handleNotification(`could not create blog: ${blog.title}.`, 'failure')
+      handleNotification(`could not create blog: ${blog.title}.`, 'error')
     }
   }
 }
@@ -65,7 +65,7 @@ export const deleteBlog = (blogToDelete, config, handleNotification) => {
       )
       console.log()
     } catch (e) {
-      handleNotification(e.response.data.error, 'failure')
+      handleNotification(e.response.data.error, 'error')
     }
   }
 }

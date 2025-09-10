@@ -27,7 +27,7 @@ const Blog = ({
       blogFormRef.current.toggleVisibility()
       getBlogs()
     } catch (e) {
-      handleNotification(e.response.data.error, 'failure')
+      handleNotification(e.response.data.error, 'error')
     }
   }
   const blogFormRef = useRef()
@@ -55,11 +55,11 @@ const Blog = ({
           `did NOT delete blog ${e.target.getAttribute(
             'blogtitle'
           )}. reason: canceled by user`,
-          'failure'
+          'error'
         )
       }
     } catch (e) {
-      handleNotification(e.response.data.error, 'failure')
+      handleNotification(e.response.data.error, 'error')
     }
   }
 

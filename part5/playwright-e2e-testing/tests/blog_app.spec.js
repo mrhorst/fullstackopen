@@ -29,7 +29,7 @@ describe('Blog app', () => {
   describe('Login', () => {
     test('fails with wrong credentials', async ({ page }) => {
       await loginWith(page, 'root', 'wrong')
-      const errorDiv = page.locator('.failure')
+      const errorDiv = page.locator('.error')
       await expect(errorDiv).toContainText('invalid username or password')
     })
 

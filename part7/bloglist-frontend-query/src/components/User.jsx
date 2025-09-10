@@ -1,9 +1,19 @@
 import { useQuery } from '@tanstack/react-query'
 import { getUsers } from '../requests'
 import { useParams, Link, useNavigate } from 'react-router-dom'
+import Typography from '@mui/material/Typography'
+import TableContainer from '@mui/material/TableContainer'
+import Table from '@mui/material/Table'
+import TableHead from '@mui/material/TableHead'
+import TableRow from '@mui/material/TableRow'
+import TableCell from '@mui/material/TableCell'
+import Paper from '@mui/material/Paper'
+import TableBody from '@mui/material/TableBody'
+import Box from '@mui/material/Box'
+import List from '@mui/material/List'
+import ListItem from '@mui/material/ListItem'
 
 const Users = () => {
-  const navigate = useNavigate()
   const {
     data: users,
     isLoading,
@@ -23,30 +33,31 @@ const Users = () => {
     return <div>error: {error.message}</div>
   }
   return (
-    <div>
-      <button onClick={() => navigate(-1)}>back</button>
-      <h2>users</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>name</th>
-            <th>blogs created</th>
-          </tr>
-        </thead>
-        <tbody>
-          {users.map((user) => {
-            return (
-              <tr key={user.username}>
-                <td>
+    <Box sx={{ mt: 3 }}>
+      <Typography sx={{ textAlign: 'center', mb: 3 }} variant='h4'>
+        users
+      </Typography>
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Name</TableCell>
+              <TableCell>Blogs Created</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {users.map((user) => (
+              <TableRow key={user.username}>
+                <TableCell>
                   <Link to={`/users/${user.id}`}>{user.name}</Link>
-                </td>
-                <td>{user.blogs.length}</td>
-              </tr>
-            )
-          })}
-        </tbody>
-      </table>
-    </div>
+                </TableCell>
+                <TableCell>{user.blogs.length}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </Box>
   )
 }
 
@@ -73,16 +84,19 @@ const User = () => {
   const user = users.find((user) => user.id === id)
   const userBlogs = user.blogs
   return (
-    <div>
-      <button onClick={() => navigate(-1)}>back</button>
-      <h1>{user.name}</h1>
-      <h4>added blogs</h4>
-      <ul>
-        {userBlogs.map((blog) => (
-          <li key={blog.id}>{blog.title}</li>
-        ))}
-      </ul>
-    </div>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+      <Box>
+        <Typography variant='h3'>{user.name}</Typography>
+      </Box>
+      <Box>
+        <Typography variant='h6'>added blogs</Typography>
+        <List>
+          {userBlogs.map((blog) => (
+            <ListItem key={blog.id}>{blog.title}</ListItem>
+          ))}
+        </List>
+      </Box>
+    </Box>
   )
 }
 

@@ -24,7 +24,7 @@ const Blog = ({ handleNotification }) => {
     } else {
       handleNotification(
         `did NOT delete blog ${blog.title}. reason: canceled by user`,
-        'failure'
+        'error'
       )
     }
   }

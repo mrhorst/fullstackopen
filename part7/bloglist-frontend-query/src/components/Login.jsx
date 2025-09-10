@@ -20,7 +20,7 @@ const Login = () => {
       setPassword('')
     },
     onError: (error) => {
-      showNotification(error.response.data.error, 'failure')
+      showNotification(error.response.data.error, 'error')
     },
   })
 

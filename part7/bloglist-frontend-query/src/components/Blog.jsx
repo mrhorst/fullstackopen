@@ -1,6 +1,6 @@
-import { useContext, useState, useRef } from 'react'
+import { useContext, useState, useRef, useEffect } from 'react'
 import { useQueryClient, useMutation, useQuery } from '@tanstack/react-query'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Link as RouterLink, useNavigate, useParams } from 'react-router-dom'
 
 import {
   createBlog,
@@ -15,6 +15,13 @@ import { NotificationContext } from '../context/NotificationContext'
 import { UserContext } from '../context/UserContext'
 
 import Toggable from './Toggable'
+import Button from '@mui/material/Button'
+import Typography from '@mui/material/Typography'
+import TextField from '@mui/material/TextField'
+import Box from '@mui/material/Box'
+import Link from '@mui/material/Link'
+import List from '@mui/material/List'
+import ListItem from '@mui/material/ListItem'
 
 export const Blogs = () => {
   const blogFormRef = useRef()
@@ -38,7 +45,7 @@ export const Blogs = () => {
       queryClient.invalidateQueries(['blogs'])
     },
     onError: (error) => {
-      showNotification(error.response.data.error, 'failure')
+      showNotification(error.response.data.error, 'error')
     },
   })
 
@@ -63,26 +70,53 @@ export const Blogs = () => {
   }
 
   return (
-    <div>
-      <Toggable
-        ref={blogFormRef}
-        hideLabel={'hide form'}
-        showLabel={'show form'}
+    <Box
+      sx={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'flex-start',
+        gap: 2,
+        mx: 'auto',
+      }}
+    >
+      <Box
+        sx={{
+          flexShrink: 0,
+          minWidth: '300px',
+        }}
       >
-        <AddBlog handleCreateBlog={handleCreateBlog} />
-      </Toggable>
-      {blogs.map((blog) => (
-        <div
-          style={{ border: '1px solid', padding: '5px', margin: '5px 0 5px 0' }}
-          key={blog.id}
-          className='blogs'
-        >
-          <Link to={`/blog/${blog.id}`}>
-            {blog.title}, by {blog.author}
-          </Link>
-        </div>
-      ))}
-    </div>
+        <Toggable ref={blogFormRef}>
+          <AddBlog handleCreateBlog={handleCreateBlog} />
+        </Toggable>
+      </Box>
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          maxWidth: '500px',
+          width: '100%',
+          gap: 1,
+        }}
+      >
+        {blogs.map((blog) => (
+          <Box
+            sx={{
+              height: '65px',
+              borderBottom: '1px solid #ccc',
+              padding: '5px 0',
+              display: 'flex',
+              alignItems: 'center',
+            }}
+            key={blog.id}
+            className='blogs'
+          >
+            <Link component={RouterLink} to={`/blog/${blog.id}`}>
+              {blog.title}, by {blog.author}
+            </Link>
+          </Box>
+        ))}
+      </Box>
+    </Box>
   )
 }
 
@@ -125,7 +159,7 @@ export const Blog = () => {
       return previousBlogs
     },
     onError: (error, _var, context) => {
-      showNotification(error.response.data.error, 'failure')
+      showNotification(error.response.data.error, 'error')
       queryClient.setQueryData(['blogs'], context)
     },
   })
@@ -138,7 +172,7 @@ export const Blog = () => {
       navigate('/')
     },
     onError: (error) => {
-      showNotification(error.response.data.error, 'failure')
+      showNotification(error.response.data.error, 'error')
     },
   })
 
@@ -149,12 +183,19 @@ export const Blog = () => {
   const isLoading = mutations.some((mutation) => mutation.isLoading)
   const isError = mutations.some((mutation) => mutation.isError)
 
+  useEffect(() => {
+    if (!isLoading && (!blog || isError)) {
+      showNotification('blog not found or it has been deleted', 'error')
+      navigate('/blogs')
+    }
+  }, [blog, isLoading, isError])
+
   if (isLoading) {
     return <div>loading...</div>
   }
 
   if (isError) {
-    return <div>error: {likeBlogMutation.error.message}</div>
+    return <div>error</div>
   }
 
   const handleLike = async (blog) => {
@@ -167,26 +208,51 @@ export const Blog = () => {
     } else {
       showNotification(
         `did NOT delete blog ${blog.title}. reason: canceled by user`,
-        'failure'
+        'error'
       )
     }
   }
 
   return (
-    <div>
-      <button onClick={() => navigate(-1)}>back</button>
-      <h2>
-        {blog.title}, by {blog.author}
-      </h2>
-      <a href={blog.url}>{blog.url}</a>
-      <p>
-        {blog.likes} likes{' '}
-        <button onClick={() => handleLike(blog)}>like</button>
-      </p>
-      <p>added by {blog.user.name}</p>
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 1,
+        minWidth: '450px',
+        alignItems: 'center',
+      }}
+    >
+      <Typography textAlign='center' variant='h4'>
+        {blog.title}
+      </Typography>
+      <Typography variant='h5'>{blog.author}</Typography>
+      <Link variant='body1' href={`https://${blog.url}`}>
+        {blog.url}
+      </Link>
+      <Box sx={{ display: 'flex', gap: 3 }}>
+        <Typography alignContent='center' variant='body1'>
+          {blog.likes} likes{' '}
+        </Typography>
+        <Button
+          variant='contained'
+          size='small'
+          onClick={() => handleLike(blog)}
+        >
+          like
+        </Button>
+      </Box>
+      <Typography variant='body1'>added by {blog.user.name}</Typography>
       <Comments blog={blog} />
-      <button onClick={() => handleDelete(blog)}>delete</button>
-    </div>
+      <Button
+        color='warning'
+        variant='contained'
+        onClick={() => handleDelete(blog)}
+        sx={{ minWidth: '130px', maxWidth: '150px' }}
+      >
+        delete blog
+      </Button>
+    </Box>
   )
 }
 
@@ -205,7 +271,7 @@ const Comments = ({ blog }) => {
       showNotification('you left a comment', 'success')
     },
     onError: (error) => {
-      showNotification(`error: ${error.message}`, 'failure')
+      showNotification(`error: ${error.message}`, 'error')
     },
   })
 
@@ -214,18 +280,38 @@ const Comments = ({ blog }) => {
     commentMutation.mutate({ blogId: blog.id, comment })
   }
   return (
-    <div>
-      <h3>comments</h3>
-      <form onSubmit={handleSubmit}>
-        <input onChange={(e) => setComment(e.target.value)} value={comment} />
-        <button>add comment</button>
-      </form>
-      <ul>
+    <Box>
+      <Typography textAlign='center' variant='h5' gutterBottom>
+        comments
+      </Typography>
+
+      <Box component='form' onSubmit={handleSubmit}>
+        <TextField
+          label='comment'
+          onChange={(e) => setComment(e.target.value)}
+          value={comment}
+          size='small'
+        />
+        <Button type='submit' variant='contained' sx={{ ml: 2 }}>
+          add comment
+        </Button>
+      </Box>
+
+      <List>
         {blog.comments.map((comment) => (
-          <li key={comment.id}>{comment.comment}</li>
+          <ListItem
+            sx={{
+              padding: '3px 0',
+              borderBottom: '1px solid #ccc',
+              width: '100%',
+            }}
+            key={comment.id}
+          >
+            <Typography variant='body2'>{comment.comment}</Typography>
+          </ListItem>
         ))}
-      </ul>
-    </div>
+      </List>
+    </Box>
   )
 }
 
@@ -247,34 +333,46 @@ export const AddBlog = ({ handleCreateBlog }) => {
   }
 
   return (
-    <div>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor='titleInput'>title</label>
-          <input
-            id={'titleInput'}
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          />
-        </div>
-        <div>
-          <label htmlFor='authorInput'>author</label>
-          <input
-            id={'authorInput'}
-            value={author}
-            onChange={(e) => setAuthor(e.target.value)}
-          />
-        </div>
-        <div>
-          <label htmlFor='urlInput'>url</label>
-          <input
-            id={'urlInput'}
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-          />
-        </div>
-        <button>add blog</button>
-      </form>
-    </div>
+    <Box
+      component='form'
+      onSubmit={handleSubmit}
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 1,
+        my: 2,
+        maxWidth: '400px',
+        mx: 'auto',
+        alignItems: 'center',
+      }}
+    >
+      <TextField
+        label='title'
+        onChange={(e) => setTitle(e.target.value)}
+        value={title}
+        size='small'
+      />
+      <TextField
+        label='author'
+        value={author}
+        onChange={(e) => setAuthor(e.target.value)}
+        size='small'
+      />
+      <TextField
+        label='url'
+        value={url}
+        onChange={(e) => setUrl(e.target.value)}
+        size='small'
+      />
+
+      <Button
+        sx={{ width: '50%' }}
+        type='submit'
+        variant='contained'
+        size='small'
+      >
+        add blog
+      </Button>
+    </Box>
   )
 }

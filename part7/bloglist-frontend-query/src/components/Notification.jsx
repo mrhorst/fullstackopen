@@ -1,17 +1,12 @@
 import { useContext } from 'react'
 import { NotificationContext } from '../context/NotificationContext'
+import Alert from '@mui/material/Alert'
 
 const Notification = () => {
   const { notification } = useContext(NotificationContext)
   const { message, type } = notification
-  return (
-    <div
-      style={message === null ? { display: 'none' } : { display: 'block' }}
-      className={`${type} notification`}
-    >
-      <p>{message}</p>
-    </div>
-  )
+  if (!message) return null
+  return <Alert severity={type}>{message}</Alert>
 }
 
 export default Notification
