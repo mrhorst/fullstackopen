@@ -96,7 +96,7 @@ let books = [
 const typeDefs = `
 type Book {
   title:String!
-  published:String!
+  published:Int!
   author:String!
   id:ID!
   genres:[String!]!
@@ -113,6 +113,11 @@ type Book {
     authorCount: Int!
     allBooks(author: String, genre: String): [Book!]!
     allAuthors: [Author!]!
+  }
+
+  type Mutation {
+    addBook(title: String!, author: String!, published: Int!, genres:[String!]!): Book
+    addAuthor(name:String!, born:Int, bookCount: Int!): Author
   }
 `
 
@@ -138,6 +143,18 @@ const resolvers = {
   Author: {
     bookCount: (root) => {
       return books.filter((book) => book.author === root.name).length
+    },
+  },
+  Mutation: {
+    addBook: (root, args) => {
+      const existingAuthor = authors.find((a) => a.name === args.author)
+      if (!existingAuthor) {
+        const newAuthor = { name: args.author }
+        authors = authors.concat(newAuthor)
+      }
+      const book = { ...args }
+      books = books.concat(book)
+      return book
     },
   },
 }
