@@ -118,6 +118,7 @@ type Book {
   type Mutation {
     addBook(title: String!, author: String!, published: Int!, genres:[String!]!): Book
     addAuthor(name:String!, born:Int, bookCount: Int!): Author
+    editAuthor(name:String!, setBornTo: Int!): Author
   }
 `
 
@@ -155,6 +156,17 @@ const resolvers = {
       const book = { ...args }
       books = books.concat(book)
       return book
+    },
+    editAuthor: (root, args) => {
+      let authorToUpdate = authors.find((a) => a.name === args.name)
+      if (!authorToUpdate) {
+        return null
+      }
+      const updatedAuthor = { ...authorToUpdate, born: args.setBornTo }
+      authors = authors.map((author) =>
+        author.name === args.name ? updatedAuthor : author
+      )
+      return updatedAuthor
     },
   },
 }
