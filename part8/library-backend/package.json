@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
+    "dev": "nodemon library_backend.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -14,5 +15,8 @@
     "graphql": "^16.11.0",
     "mongoose": "^7.8.7",
     "mongoose-unique-validator": "^4.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
   }
 }

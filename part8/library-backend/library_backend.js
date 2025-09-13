@@ -1,5 +1,6 @@
 const { ApolloServer } = require('@apollo/server')
 const { startStandaloneServer } = require('@apollo/server/standalone')
+const { GraphQLError } = require('graphql')
 
 let authors = [
   {
@@ -165,22 +166,61 @@ const resolvers = {
       let author = await Author.findOne({ name: args.author })
       if (!author) {
         author = new Author({ name: args.author })
-        await author.save()
+        try {
+          await author.save()
+        } catch (error) {
+          throw new GraphQLError(
+            `${error.name}! could not save author: ${error.message}`,
+            {
+              extensions: {
+                code: 'BAD_USER_INPUT',
+                invalidArgs: args.author,
+                error,
+              },
+            }
+          )
+        }
       }
       const book = new Book({ ...args, author: author._id })
-      await book.save()
+      try {
+        await book.save()
+      } catch (error) {
+        throw new GraphQLError(
+          `${error.name}! could not save book: ${error.message}`,
+          {
+            extensions: {
+              code: 'BAD_USER_INPUT',
+              invalidArgs: args,
+              error,
+            },
+          }
+        )
+      }
 
       return Book.findById(book._id).populate('author')
     },
 
     editAuthor: async (root, args) => {
-      let authorToUpdate = await Author.findOneAndUpdate(
-        { name: args.name },
-        { born: args.setBornTo },
-        { new: true }
-      )
-      if (!authorToUpdate) {
-        return null
+      try {
+        let authorToUpdate = await Author.findOneAndUpdate(
+          { name: args.name },
+          { born: args.setBornTo },
+          { new: true }
+        )
+        if (!authorToUpdate) {
+          return null
+        }
+      } catch (error) {
+        throw new GraphQLError(
+          `${error.name}! could not update author: ${error.message}`,
+          {
+            extensions: {
+              code: 'BAD_USER_INPUT',
+              invalidArgs: args,
+              error,
+            },
+          }
+        )
       }
 
       return authorToUpdate
@@ -188,10 +228,23 @@ const resolvers = {
     addAuthor: async (root, args) => {
       let author = await Author.findOne({ name: args.name })
       if (author) {
-        throw new Error('author already exists..')
+        throw new GraphQLError('author already exists..')
       }
       author = new Author({ name: args.name, born: args.born || null })
-      await author.save()
+      try {
+        await author.save()
+      } catch (error) {
+        throw new GraphQLError(
+          `${error.name}! could not save author: ${error.message}`,
+          {
+            extensions: {
+              code: 'BAD_USER_INPUT',
+              invalidArgs: args,
+              error,
+            },
+          }
+        )
+      }
       return author
     },
   },
