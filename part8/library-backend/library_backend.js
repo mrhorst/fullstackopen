@@ -93,11 +93,32 @@ let books = [
   },
 ]
 
+const mongoose = require('mongoose')
+mongoose.set('strictQuery', false)
+
+const Author = require('./models/author')
+const Book = require('./models/book')
+
+require('dotenv').config()
+
+const MONGODB_URI = process.env.MONGODB_URI
+
+console.log('connecting to ', MONGODB_URI)
+
+mongoose
+  .connect(MONGODB_URI)
+  .then(() => {
+    console.log('connected to mongoDB!')
+  })
+  .catch((error) => {
+    console.log('error connecting to mongoDB: ', error.message)
+  })
+
 const typeDefs = `
 type Book {
   title:String!
   published:Int!
-  author:String!
+  author:Author!
   id:ID!
   genres:[String!]!
 }
@@ -124,39 +145,31 @@ type Book {
 
 const resolvers = {
   Query: {
-    bookCount: () => books.length,
-    authorCount: () => authors.length,
-    allBooks: (_, args) => {
-      if (args.genre && args.author) {
-        return books.filter(
-          (book) =>
-            book.author === args.author && book.genres.includes(args.genre)
-        )
-      } else if (args.genre) {
-        return books.filter((book) => book.genres.includes(args.genre))
-      } else if (args.author) {
-        return books.filter((book) => book.author === args.author)
-      }
-      return books
+    bookCount: async () => Book.collection.countDocuments(),
+    authorCount: async () => Author.collection.countDocuments(),
+    allBooks: async (_, args) => {
+      return Book.find({}).populate('author')
     },
-    allAuthors: () => authors,
+    allAuthors: async () => Author.find({}),
   },
   Author: {
     bookCount: (root) => {
-      return books.filter((book) => book.author === root.name).length
+      return
     },
   },
   Mutation: {
-    addBook: (root, args) => {
-      const existingAuthor = authors.find((a) => a.name === args.author)
-      if (!existingAuthor) {
-        const newAuthor = { name: args.author }
-        authors = authors.concat(newAuthor)
+    addBook: async (root, args) => {
+      let author = await Author.findOne({ name: args.author })
+      if (!author) {
+        author = new Author({ name: args.author })
+        await author.save()
       }
-      const book = { ...args }
-      books = books.concat(book)
-      return book
+      const book = new Book({ ...args, author: author._id })
+      await book.save()
+
+      return Book.findById(book._id).populate('author')
     },
+
     editAuthor: (root, args) => {
       let authorToUpdate = authors.find((a) => a.name === args.name)
       if (!authorToUpdate) {
