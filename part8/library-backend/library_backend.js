@@ -148,14 +148,17 @@ const resolvers = {
     bookCount: async () => Book.collection.countDocuments(),
     authorCount: async () => Author.collection.countDocuments(),
     allBooks: async (_, args) => {
+      if (args.genre) {
+        return Book.find({ genres: args.genre }).populate('author')
+      }
       return Book.find({}).populate('author')
     },
     allAuthors: async () => Author.find({}),
   },
   Author: {
-    bookCount: (root) => {
-      return
-    },
+    // bookCount: (root) => {
+    //   return
+    // },
   },
   Mutation: {
     addBook: async (root, args) => {
@@ -170,16 +173,26 @@ const resolvers = {
       return Book.findById(book._id).populate('author')
     },
 
-    editAuthor: (root, args) => {
-      let authorToUpdate = authors.find((a) => a.name === args.name)
+    editAuthor: async (root, args) => {
+      let authorToUpdate = await Author.findOneAndUpdate(
+        { name: args.name },
+        { born: args.setBornTo },
+        { new: true }
+      )
       if (!authorToUpdate) {
         return null
       }
-      const updatedAuthor = { ...authorToUpdate, born: args.setBornTo }
-      authors = authors.map((author) =>
-        author.name === args.name ? updatedAuthor : author
-      )
-      return updatedAuthor
+
+      return authorToUpdate
+    },
+    addAuthor: async (root, args) => {
+      let author = await Author.findOne({ name: args.name })
+      if (author) {
+        throw new Error('author already exists..')
+      }
+      author = new Author({ name: args.name, born: args.born || null })
+      await author.save()
+      return author
     },
   },
 }
