@@ -45,6 +45,10 @@ const Authors = (props) => {
 const UpdateBirthyear = ({ setMessage }) => {
   const [born, setBorn] = useState('')
   const [editAuthor, result] = useMutation(EDIT_BIRTHYEAR, {
+    onError: (error) => {
+      setMessage(error.errors[0].message)
+      setTimeout(() => setMessage(null), 3000)
+    },
     refetchQueries: [{ query: ALL_AUTHORS }],
   })
 
