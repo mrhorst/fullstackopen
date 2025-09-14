@@ -157,12 +157,13 @@ const typeDefs = `
     editAuthor(name:String!, setBornTo: Int!): Author
     createUser(username: String!, favoriteGenre: String!): User
     login(username: String!, password: String!): Token
+    updateUser(username: String!, favoriteGenre: String!): User
   }
 `
 
 const resolvers = {
   Query: {
-    me: async () => (root, args, context) => context.currentUser,
+    me: async (root, args, context) => context.currentUser,
     bookCount: async () => Book.collection.countDocuments(),
     authorCount: async () => Author.collection.countDocuments(),
     allBooks: async (_, args) => {
@@ -272,7 +273,10 @@ const resolvers = {
       return author
     },
     createUser: async (root, args) => {
-      const user = new User({ username: args.username })
+      const user = new User({
+        username: args.username,
+        favoriteGenre: args.favoriteGenre,
+      })
 
       return user.save().catch((error) => {
         throw new GraphQLError(
@@ -303,6 +307,22 @@ const resolvers = {
         id: user._id,
       }
       return { value: jwt.sign(userForToken, process.env.JWT_SECRET) }
+    },
+    updateUser: async (root, args, { currentUser }) => {
+      if (!currentUser || currentUser.username !== args.username) {
+        throw new GraphQLError('you are not authorized')
+      }
+
+      let user = await User.findOneAndUpdate(
+        { username: currentUser.username },
+        { favoriteGenre: args.favoriteGenre },
+        { new: true }
+      )
+
+      if (!user) {
+        throw new GraphQLError('could not find user')
+      }
+      return user
     },
   },
 }

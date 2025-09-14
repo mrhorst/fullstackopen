@@ -4,6 +4,7 @@ import Books from './components/Books'
 import NewBook from './components/NewBook'
 import Login from './components/Login'
 import Notification from './components/Notification'
+import Recommendations from './components/Recommendations'
 import { useApolloClient } from '@apollo/client/react'
 
 const App = () => {
@@ -33,6 +34,9 @@ const App = () => {
       <div style={{ display: 'flex' }}>
         <button onClick={() => setPage('authors')}>authors</button>
         <button onClick={() => setPage('books')}>books</button>
+        <button onClick={() => setPage('recommendations')}>
+          recommendations
+        </button>
         {token ? (
           <div>
             <button onClick={() => setPage('add')}>add book</button>
@@ -42,6 +46,8 @@ const App = () => {
           <button onClick={() => setPage('login')}>login</button>
         )}
       </div>
+
+      <Recommendations show={page === 'recommendations'} />
 
       <Authors setMessage={setMessage} show={page === 'authors'} />
 
@@ -53,6 +59,7 @@ const App = () => {
         setMessage={setMessage}
         setToken={setToken}
         show={page === 'login'}
+        setPage={setPage}
       />
     </div>
   )
