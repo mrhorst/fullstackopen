@@ -5,13 +5,15 @@ import NewBook from './components/NewBook'
 import Login from './components/Login'
 import Notification from './components/Notification'
 import Recommendations from './components/Recommendations'
-import { useApolloClient } from '@apollo/client/react'
+import { useApolloClient, useQuery } from '@apollo/client/react'
+import { ALL_BOOKS } from './queries'
 
 const App = () => {
   const [token, setToken] = useState(null)
   const [page, setPage] = useState('authors')
   const [message, setMessage] = useState(null)
   const client = useApolloClient()
+  const result = useQuery(ALL_BOOKS)
 
   useEffect(() => {
     const tokenFromStorage = localStorage.getItem('library-user-token')
@@ -20,6 +22,10 @@ const App = () => {
     }
   })
 
+  if (result.loading) {
+    return <div>loading...</div>
+  }
+
   const handleLogout = (e) => {
     e.preventDefault()
     setToken(null)
@@ -27,6 +33,8 @@ const App = () => {
     client.resetStore()
     setPage('books')
   }
+
+  const allBooks = result.data.allBooks
 
   return (
     <div>
@@ -51,7 +59,7 @@ const App = () => {
 
       <Authors setMessage={setMessage} show={page === 'authors'} />
 
-      <Books show={page === 'books'} />
+      <Books allBooks={allBooks} show={page === 'books'} />
 
       <NewBook show={page === 'add'} />
 
