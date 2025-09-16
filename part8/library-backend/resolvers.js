@@ -21,10 +21,10 @@ const resolvers = {
     allAuthors: async () => Author.find({}),
   },
   Author: {
-    // bookCount: (root) => {
-    //   return
-    // },
-    name: (root) => root.name,
+    bookCount: async (root) => {
+      const author = await Author.findOne({ name: root.name }).populate('books')
+      return author.books.length
+    },
   },
   Mutation: {
     addBook: async (root, args, { currentUser }) => {
@@ -34,35 +34,20 @@ const resolvers = {
       let author = await Author.findOne({ name: args.author })
       if (!author) {
         author = new Author({ name: args.author })
-        try {
-          await author.save()
-        } catch (error) {
-          throw new GraphQLError(
-            `${error.name}! could not save author: ${error.message}`,
-            {
-              extensions: {
-                code: 'BAD_USER_INPUT',
-                invalidArgs: args.author,
-                error,
-              },
-            }
-          )
-        }
       }
       const book = new Book({ ...args, author: author._id })
+      author.books.push(book._id)
       try {
         await book.save()
+        await author.save()
       } catch (error) {
-        throw new GraphQLError(
-          `${error.name}! could not save book: ${error.message}`,
-          {
-            extensions: {
-              code: 'BAD_USER_INPUT',
-              invalidArgs: args,
-              error,
-            },
-          }
-        )
+        throw new GraphQLError(`${error.name}! ${error.message}`, {
+          extensions: {
+            code: 'BAD_USER_INPUT',
+            invalidArgs: args,
+            error,
+          },
+        })
       }
       const populatedBook = await Book.findById(book._id).populate('author')
 
