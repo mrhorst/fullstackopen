@@ -48,4 +48,26 @@ const calculateExercises = (
   }
 }
 
-console.log(calculateExercises([3, 3, 2, 4.5, 0, 3, 1], 2))
+try {
+  const target = Number(process.argv[2])
+  if (isNaN(target)) {
+    throw Error('`target` is NaN!')
+  }
+  const dailyExerciseHoursArray: number[] = process.argv
+    .slice(3)
+    .map((args, idx) => {
+      if (isNaN(Number(args))) {
+        throw Error(`NaN found in index: ${idx}`)
+      }
+      return Number(args)
+    })
+
+  console.log(calculateExercises(dailyExerciseHoursArray, target))
+} catch (error: unknown) {
+  let errorMessage = 'Something is wrong: '
+
+  if (error instanceof Error) {
+    errorMessage += error.message
+  }
+  console.error(errorMessage)
+}
