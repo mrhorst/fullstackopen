@@ -1,6 +1,7 @@
 import express, { Response } from 'express';
-import { NewPatientEntry, NonSensitivePatient } from '../types';
+import { NonSensitivePatient } from '../types';
 import patientService from '../services/patientService';
+import { toNewPatientEntry } from '../utils';
 
 const route = express.Router();
 
@@ -10,11 +11,18 @@ route.get('/', (_req, res: Response<NonSensitivePatient[]>) => {
 });
 
 route.post('/', (req, res) => {
-  /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-  const patientEntry: NewPatientEntry = req.body;
+  try {
+    const patientEntry = toNewPatientEntry(req.body);
 
-  const addedEntry = patientService.addPatient(patientEntry);
-  res.json(addedEntry);
+    const addedEntry = patientService.addPatient(patientEntry);
+    res.json(addedEntry);
+  } catch (error: unknown) {
+    let errorMessage = 'something went wrong: ';
+    if (error instanceof Error) {
+      errorMessage += 'Error: ' + error.message;
+    }
+    res.status(400).send(errorMessage);
+  }
 });
 
 export default route;
