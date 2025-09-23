@@ -1,22 +1,45 @@
 import type { SyntheticEvent } from 'react';
 import { useState } from 'react';
 import diaryService from '../services/diaryService';
+import Notification from './Notification';
+import { isAxiosError, type AxiosError } from 'axios';
 
 const EntryForm = () => {
   const [date, setDate] = useState('');
   const [visibility, setVisibility] = useState('');
   const [weather, setWeather] = useState('');
   const [comment, setComment] = useState('');
+  const [message, setMessage] = useState('');
 
   const submit = async (e: SyntheticEvent) => {
     e.preventDefault();
-    await diaryService.createEntry({
-      date,
-      visibility,
-      weather,
-      comment,
-    });
-    resetInputs();
+    try {
+      await diaryService.createEntry({
+        date,
+        visibility,
+        weather,
+        comment,
+      });
+      resetInputs();
+    } catch (error: unknown) {
+      if (isAxiosError(error)) {
+        showNotification(error);
+        setTimeout(() => clearNotification(), 3000);
+      }
+    }
+  };
+
+  const showNotification = (error: AxiosError) => {
+    const data = error.response?.data;
+    if (typeof data === 'string') {
+      setMessage(data);
+    } else {
+      setMessage('unknown error');
+    }
+  };
+
+  const clearNotification = () => {
+    setMessage('');
   };
 
   const resetInputs = () => {
@@ -28,6 +51,7 @@ const EntryForm = () => {
 
   return (
     <div>
+      {message && <Notification message={message} />}
       <form onSubmit={submit}>
         <div>
           <label>date</label>
