@@ -1,6 +1,6 @@
-import type { DiaryEntry } from '../types';
+import type { NonSensitiveDiaryEntry } from '../types';
 
-const Diary = ({ diaries }: { diaries: DiaryEntry[] }) => {
+const Diary = ({ diaries }: { diaries: NonSensitiveDiaryEntry[] }) => {
   return diaries.length !== 0 ? (
     <div>
       <h3>Flight Logs</h3>
