@@ -1,13 +1,13 @@
 import express, { Response } from 'express';
-import { NonSensitivePatient } from '../types';
+import { Patient } from '../types';
 import patientService from '../services/patientService';
 import { toNewPatientEntry } from '../utils';
 import { z } from 'zod';
 
 const route = express.Router();
 
-route.get('/', (_req, res: Response<NonSensitivePatient[]>) => {
-  const data = patientService.getNonSensitiveEntries();
+route.get('/', (_req, res: Response<Patient[]>) => {
+  const data = patientService.getEntries();
   res.json(data);
 });
 
