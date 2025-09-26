@@ -8,11 +8,6 @@ export interface Diagnosis {
   latin?: string;
 }
 
-export type Entry =
-  | HospitalEntry
-  | OccupationalHealthcareEntry
-  | HealthCheckEntry;
-
 export interface Patient {
   id: UUIDTypes;
   name: string;
@@ -22,6 +17,11 @@ export interface Patient {
   occupation: string;
   entries: Entry[];
 }
+
+export type Entry =
+  | HospitalEntry
+  | OccupationalHealthcareEntry
+  | HealthCheckEntry;
 
 export interface BaseEntry {
   id: UUIDTypes;

@@ -5,9 +5,16 @@ import FemaleIcon from '@mui/icons-material/Female';
 import TransgenderIcon from '@mui/icons-material/Transgender';
 import { useEffect, useState } from 'react';
 import diagnosisService from '../../services/diagnosis';
+import { Entry } from '../../types';
+import { Favorite, HealthAndSafety, Work } from '@mui/icons-material';
 
 interface Props {
   patients: Patient[];
+}
+
+interface EntryProps {
+  entry: Entry;
+  diagnosis: Diagnosis[];
 }
 
 const PatientDetails = ({ patients }: Props) => {
@@ -46,22 +53,16 @@ const PatientDetails = ({ patients }: Props) => {
       {patient.entries.length > 0 ? (
         patient.entries.map((entry) => {
           return (
-            <div key={entry.id}>
-              <p>
-                {entry.date} {entry.description}
-              </p>
-              <ul>
-                {entry.diagnosisCodes
-                  ? entry.diagnosisCodes.map((code) => (
-                      <li key={code}>
-                        {code}{' '}
-                        {diagnosis.map((diag) =>
-                          diag.code === code ? diag.name : null
-                        )}
-                      </li>
-                    ))
-                  : null}
-              </ul>
+            <div
+              style={{
+                border: '1px solid',
+                padding: '0 5px',
+                borderRadius: '7px',
+                marginBottom: '8px',
+              }}
+              key={entry.id}
+            >
+              <EntryDetails entry={entry} diagnosis={diagnosis} />
             </div>
           );
         })
@@ -73,4 +74,147 @@ const PatientDetails = ({ patients }: Props) => {
     </div>
   );
 };
+
+const EntryDetails: React.FC<{ entry: Entry; diagnosis: Diagnosis[] }> = ({
+  entry,
+  diagnosis,
+}) => {
+  switch (entry.type) {
+    case 'Hospital':
+      return <HospitalEntry entry={entry} diagnosis={diagnosis} />;
+    case 'OccupationalHealthcare':
+      return (
+        <OccupationalHealthcareEntry entry={entry} diagnosis={diagnosis} />
+      );
+    case 'HealthCheck':
+      return <HealthCheckEntry entry={entry} diagnosis={diagnosis} />;
+    default:
+      return 'assertNever(entry)';
+  }
+};
+
+const HospitalEntry = ({ entry, diagnosis }: EntryProps) => {
+  if (entry.type === 'Hospital') {
+    return (
+      <div key={entry.id}>
+        <p>
+          {entry.date} <HealthAndSafety />
+        </p>
+        <p> {entry.description}</p>
+        <div
+          style={{
+            border: '1px solid',
+            borderRadius: '8px',
+            padding: '0 5px',
+            marginLeft: '5px',
+          }}
+        >
+          <h4>discharge info</h4>
+          <p>criteria: {entry.discharge.criteria}</p>
+          <p>date: {entry.discharge.date}</p>
+        </div>
+        <p> diagnose by {entry.specialist}</p>
+        <ul>
+          {entry.diagnosisCodes
+            ? entry.diagnosisCodes.map((code) => (
+                <li key={code}>
+                  {code}{' '}
+                  {diagnosis.map((diag) =>
+                    diag.code === code ? diag.name : null
+                  )}
+                </li>
+              ))
+            : null}
+        </ul>
+      </div>
+    );
+  }
+};
+
+const HealthCheckEntry = ({ entry, diagnosis }: EntryProps) => {
+  if (entry.type === 'HealthCheck') {
+    const rating = entry.healthCheckRating;
+    return (
+      <div key={entry.id}>
+        <p>
+          {entry.date} <HealthAndSafety />
+        </p>
+        <p> {entry.description}</p>
+        <p>
+          <Favorite
+            htmlColor={
+              rating === 0
+                ? 'green'
+                : rating === 1
+                ? 'yellow'
+                : rating === 2
+                ? 'orange'
+                : 'red'
+            }
+          />
+        </p>
+        <p> diagnose by {entry.specialist}</p>
+        <ul>
+          {entry.diagnosisCodes
+            ? entry.diagnosisCodes.map((code) => (
+                <li key={code}>
+                  {code}{' '}
+                  {diagnosis.map((diag) =>
+                    diag.code === code ? diag.name : null
+                  )}
+                </li>
+              ))
+            : null}
+        </ul>
+      </div>
+    );
+  }
+};
+
+const OccupationalHealthcareEntry = ({ entry, diagnosis }: EntryProps) => {
+  if (entry.type === 'OccupationalHealthcare') {
+    return (
+      <div key={entry.id}>
+        <div>
+          <h4>Employer: {entry.employerName}</h4>
+          <div
+            style={{
+              border: '1px solid',
+              borderRadius: '8px',
+              marginLeft: '5px',
+              padding: '0 5px',
+            }}
+          >
+            <p>Sick leave? {entry.sickLeave ? 'Yes' : 'No'}</p>
+            {entry.sickLeave ? (
+              <div>
+                <p>Start Date: {entry.sickLeave.startDate}</p>
+                <p>End Date: {entry.sickLeave.endDate}</p>
+              </div>
+            ) : null}
+          </div>
+        </div>
+        <p>
+          {entry.date} <Work />
+        </p>
+        <p> {entry.description}</p>
+
+        <p> diagnose by {entry.specialist}</p>
+        <ul>
+          {entry.diagnosisCodes
+            ? entry.diagnosisCodes.map((code) => (
+                <li key={code}>
+                  {code}{' '}
+                  {diagnosis.map((diag) =>
+                    diag.code === code ? diag.name : null
+                  )}
+                </li>
+              ))
+            : null}
+        </ul>
+      </div>
+    );
+  }
+};
+
 export default PatientDetails;
