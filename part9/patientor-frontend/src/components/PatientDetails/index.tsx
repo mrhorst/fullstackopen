@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { Patient } from '../../types';
 import MaleIcon from '@mui/icons-material/Male';
 import FemaleIcon from '@mui/icons-material/Female';
@@ -35,6 +35,30 @@ const PatientDetails = ({ patients }: Props) => {
       </div>
       <p>ssn: {patient.ssn}</p>
       <p>occupation: {patient.occupation}</p>
+      <br />
+      <h3>entries</h3>
+      {patient.entries.length > 0 ? (
+        patient.entries.map((entry) => {
+          return (
+            <div key={entry.id}>
+              <p>
+                {entry.date} {entry.description}
+              </p>
+              <ul>
+                {entry.diagnosisCodes
+                  ? entry.diagnosisCodes.map((code) => (
+                      <li key={code}>{code}</li>
+                    ))
+                  : null}
+              </ul>
+            </div>
+          );
+        })
+      ) : (
+        <div>
+          <p>no entries available</p>
+        </div>
+      )}
     </div>
   );
 };
