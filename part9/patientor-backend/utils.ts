@@ -1,4 +1,4 @@
-import { HealthCheckRating, NewPatientEntry } from './types';
+import { Diagnosis, HealthCheckRating, NewPatientEntry } from './types';
 import { z } from 'zod';
 
 export const newPatientEntrySchema = z.object({
@@ -16,6 +16,17 @@ export const toNewPatientEntry = (object: unknown): NewPatientEntry => {
 //helpers
 const stringNotEmpty = z.string().min(1, 'Required');
 
+export const parseDiagnosisCodes = (
+  object: unknown
+): Array<Diagnosis['code']> => {
+  if (!object || typeof object !== 'object' || !('diagnosisCodes' in object)) {
+    // we will just trust the data to be in correct form
+    return [] as Array<Diagnosis['code']>;
+  }
+
+  return object.diagnosisCodes as Array<Diagnosis['code']>;
+};
+
 const diagnosisCodesSchema = z.array(stringNotEmpty).optional();
 
 const BaseEntryWithoutIdSchema = z.object({
@@ -30,12 +41,10 @@ const HealthCheckEntryWithoutIdSchema = BaseEntryWithoutIdSchema.extend({
   healthCheckRating: z.enum(HealthCheckRating),
 });
 
-const DischargeSchema = z
-  .object({
-    date: stringNotEmpty,
-    criteria: stringNotEmpty,
-  })
-  .optional();
+const DischargeSchema = z.object({
+  date: stringNotEmpty,
+  criteria: stringNotEmpty,
+});
 
 const HospitalEntryWithoutIdSchema = BaseEntryWithoutIdSchema.extend({
   type: z.literal('Hospital'),

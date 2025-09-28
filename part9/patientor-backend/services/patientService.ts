@@ -1,7 +1,7 @@
 import patients from '../data/patients';
 import { Entry, NewPatientEntry, NonSensitivePatient, Patient } from '../types';
 import { v1 as uuid } from 'uuid';
-import { EntryWithoutId } from '../utils';
+import { EntryWithoutId, parseDiagnosisCodes } from '../utils';
 
 const getEntries = (): Patient[] => {
   return patients;
@@ -32,9 +32,11 @@ const addEntryToPatient = (
   if (!patient) {
     throw new Error('patient not found');
   }
+  const diagnosisCodes = parseDiagnosisCodes(entryWithoutId);
   const newEntry: Entry = {
     id: uuid(),
     ...entryWithoutId,
+    diagnosisCodes,
   };
   patient.entries.push(newEntry);
   return newEntry;
