@@ -1,29 +1,43 @@
 import { Dispatch, SetStateAction, SyntheticEvent, useState } from 'react';
 import patientService from '../../services/patients';
 import { HealthCheckEntryForm, HealthCheckRating } from '../../types';
+import { AxiosError } from 'axios';
 
 interface Props {
   setOpenForm: Dispatch<SetStateAction<boolean>>;
   userId: string;
+  setMessage: Dispatch<SetStateAction<string | null>>;
 }
 
-export const AddEntryForm = ({ setOpenForm, userId }: Props) => {
+export const AddEntryForm = ({ setOpenForm, userId, setMessage }: Props) => {
   const [description, setDescription] = useState('');
   const [date, setDate] = useState('');
   const [specialist, setSpecialist] = useState('');
   const [healthCheckRating, setHealthCheckRating] =
     useState<HealthCheckRating>(0);
 
-  const submitForm = (e: SyntheticEvent) => {
-    e.preventDefault();
-    const entry: HealthCheckEntryForm = {
-      type: 'HealthCheck',
-      description,
-      date,
-      specialist,
-      healthCheckRating,
-    };
-    patientService.addEntry(userId, entry);
+  const submitForm = async (e: SyntheticEvent) => {
+    try {
+      e.preventDefault();
+      const entry: HealthCheckEntryForm = {
+        type: 'HealthCheck',
+        description,
+        date,
+        specialist,
+        healthCheckRating,
+      };
+      await patientService.addEntry(userId, entry);
+    } catch (error: unknown) {
+      if (error instanceof AxiosError) {
+        const errorName = error.response?.data.error.name;
+        if (errorName === 'ZodError') {
+          const issue = error.response?.data.error.issues[0];
+          const message = issue.errors[0][0].message;
+          setMessage(`${message}`);
+          setTimeout(() => setMessage(null), 3000);
+        }
+      }
+    }
   };
 
   const closeForm = (e: SyntheticEvent) => {

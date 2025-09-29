@@ -43,7 +43,9 @@ route.post('/:id/entries', (req, res) => {
     return res.status(201).json(createdEntry);
   } catch (error: unknown) {
     if (error instanceof z.ZodError) {
-      return res.status(400).send({ error: error.issues });
+      return res
+        .status(400)
+        .send({ error: { issues: error.issues, name: error.name } });
     } else {
       return res.status(400).send({ error: 'error unknown' });
     }

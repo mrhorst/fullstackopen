@@ -14,7 +14,9 @@ export const toNewPatientEntry = (object: unknown): NewPatientEntry => {
 };
 
 //helpers
-const stringNotEmpty = z.string().min(1, 'Required');
+const stringNotEmpty = z.string().min(1, {
+  error: (m) => `Problem at '${m.path}'. Must contain at least 1 character`,
+});
 
 export const parseDiagnosisCodes = (
   object: unknown
@@ -38,7 +40,10 @@ const BaseEntryWithoutIdSchema = z.object({
 
 const HealthCheckEntryWithoutIdSchema = BaseEntryWithoutIdSchema.extend({
   type: z.literal('HealthCheck'),
-  healthCheckRating: z.enum(HealthCheckRating),
+  healthCheckRating: z.enum(HealthCheckRating, {
+    error: (a) =>
+      `Invalid input. You entered ${a.input}, but it must be one of the enum values: ${a.values}`,
+  }),
 });
 
 const DischargeSchema = z.object({

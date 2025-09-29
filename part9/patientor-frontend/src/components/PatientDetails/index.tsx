@@ -3,7 +3,7 @@ import { Diagnosis, Patient } from '../../types';
 import MaleIcon from '@mui/icons-material/Male';
 import FemaleIcon from '@mui/icons-material/Female';
 import TransgenderIcon from '@mui/icons-material/Transgender';
-import { useEffect, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import diagnosisService from '../../services/diagnosis';
 import { Entry } from '../../types';
 import { Favorite, HealthAndSafety, Work } from '@mui/icons-material';
@@ -11,6 +11,7 @@ import { AddEntryForm } from './AddEntryForm';
 
 interface Props {
   patients: Patient[];
+  setMessage: Dispatch<SetStateAction<string | null>>;
 }
 
 interface EntryProps {
@@ -18,7 +19,7 @@ interface EntryProps {
   diagnosis: Diagnosis[];
 }
 
-const PatientDetails = ({ patients }: Props) => {
+const PatientDetails = ({ patients, setMessage }: Props) => {
   const { id } = useParams();
   const [openForm, setOpenForm] = useState(false);
   const patient = patients.find((p) => p.id === id);
@@ -57,7 +58,13 @@ const PatientDetails = ({ patients }: Props) => {
       <p>occupation: {patient.occupation}</p>
       <br />
       <button onClick={openEntryForm}>New Entry</button>
-      {openForm && <AddEntryForm setOpenForm={setOpenForm} userId={id} />}
+      {openForm && (
+        <AddEntryForm
+          setOpenForm={setOpenForm}
+          userId={id}
+          setMessage={setMessage}
+        />
+      )}
       <h3>entries</h3>
       {patient.entries.length > 0 ? (
         patient.entries.map((entry) => {
