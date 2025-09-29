@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import diagnosisService from '../../services/diagnosis';
 import { Entry } from '../../types';
 import { Favorite, HealthAndSafety, Work } from '@mui/icons-material';
+import { AddEntryForm } from './AddEntryForm';
 
 interface Props {
   patients: Patient[];
@@ -19,13 +20,19 @@ interface EntryProps {
 
 const PatientDetails = ({ patients }: Props) => {
   const { id } = useParams();
+  const [openForm, setOpenForm] = useState(false);
   const patient = patients.find((p) => p.id === id);
   const [diagnosis, setDiagnosis] = useState<Diagnosis[]>([]);
+
   useEffect(() => {
     diagnosisService.getAll().then((data) => setDiagnosis(data));
   }, []);
 
-  if (!patient)
+  const openEntryForm = () => {
+    setOpenForm(!openForm);
+  };
+
+  if (!patient || !id)
     return (
       <div>
         <h1>Error: Patient not found</h1>
@@ -49,6 +56,8 @@ const PatientDetails = ({ patients }: Props) => {
       <p>ssn: {patient.ssn}</p>
       <p>occupation: {patient.occupation}</p>
       <br />
+      <button onClick={openEntryForm}>New Entry</button>
+      {openForm && <AddEntryForm setOpenForm={setOpenForm} userId={id} />}
       <h3>entries</h3>
       {patient.entries.length > 0 ? (
         patient.entries.map((entry) => {
