@@ -14,12 +14,21 @@ import {
   SickLeave,
 } from '../../types';
 import { AxiosError } from 'axios';
+import {
+  FormControl,
+  InputLabel,
+  MenuItem,
+  OutlinedInput,
+  Select,
+  SelectChangeEvent,
+} from '@mui/material';
 
 interface Props {
   setOpenForm: Dispatch<SetStateAction<boolean>>;
   userId: string;
   setMessage: Dispatch<SetStateAction<string | null>>;
   setPatientEntries: Dispatch<SetStateAction<Entry[]>>;
+  diagnosis: Diagnosis[];
 }
 
 export const AddEntryForm = ({
@@ -27,6 +36,7 @@ export const AddEntryForm = ({
   userId,
   setMessage,
   setPatientEntries,
+  diagnosis,
 }: Props) => {
   const [description, setDescription] = useState('');
   const [date, setDate] = useState('');
@@ -163,6 +173,8 @@ export const AddEntryForm = ({
           setDiagnosisCodesInput={setDiagnosisCodesInput}
           addDiagnosisCode={addDiagnosisCode}
           diagnosisCodesArray={diagnosisCodesArray}
+          diagnosis={diagnosis}
+          setDiagnosisCodesArray={setDiagnosisCodesArray}
         />
         {option === 'HealthCheck' && (
           <HealthCheckInput
@@ -338,6 +350,8 @@ interface BaseInputProps {
   setDiagnosisCodesInput: Dispatch<SetStateAction<string>>;
   addDiagnosisCode: (e: SyntheticEvent) => void;
   diagnosisCodesArray: string[];
+  setDiagnosisCodesArray: Dispatch<SetStateAction<string[]>>;
+  diagnosis: Diagnosis[];
 }
 
 const BaseEntryInput = ({
@@ -347,10 +361,9 @@ const BaseEntryInput = ({
   setDate,
   specialist,
   setSpecialist,
-  diagnosisCodesInput,
-  setDiagnosisCodesInput,
-  addDiagnosisCode,
   diagnosisCodesArray,
+  setDiagnosisCodesArray,
+  diagnosis,
 }: BaseInputProps) => {
   return (
     <div>
@@ -389,12 +402,11 @@ const BaseEntryInput = ({
         <div>
           <label htmlFor='diagnosisCodes'>diagnosis codes</label>
         </div>
-        <input
-          name='diagnosisCodes'
-          value={diagnosisCodesInput}
-          onChange={(e) => setDiagnosisCodesInput(e.target.value)}
+        <MultipleSelect
+          diagnosisCodes={diagnosis}
+          diagnosisCodesArray={diagnosisCodesArray}
+          setDiagnosisCodesArray={setDiagnosisCodesArray}
         />
-        <button onClick={addDiagnosisCode}>add diagnosis code</button>
       </div>
       <div>
         <ul
@@ -455,6 +467,47 @@ const RadioButtonInput = ({
           </div>
         );
       })}
+    </div>
+  );
+};
+
+interface MultipleSelectProps {
+  diagnosisCodes: Diagnosis[];
+  setDiagnosisCodesArray: Dispatch<SetStateAction<string[]>>;
+  diagnosisCodesArray: string[];
+}
+
+const MultipleSelect = ({
+  diagnosisCodes,
+  setDiagnosisCodesArray,
+  diagnosisCodesArray,
+}: MultipleSelectProps) => {
+  const handleChange = (event: SelectChangeEvent<string[]>) => {
+    const {
+      target: { value },
+    } = event;
+    setDiagnosisCodesArray(
+      typeof value === 'string' ? value.split(',') : value
+    );
+  };
+
+  return (
+    <div>
+      <FormControl sx={{ m: 1, width: 300 }}>
+        <InputLabel id='demo-multiple-name-label'>Name</InputLabel>
+        <Select
+          multiple
+          value={diagnosisCodesArray}
+          onChange={handleChange}
+          input={<OutlinedInput label='Name' />}
+        >
+          {diagnosisCodes.map((d) => (
+            <MenuItem key={d.code} value={d.code}>
+              {d.code}: {d.name}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
     </div>
   );
 };

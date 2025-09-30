@@ -67,6 +67,7 @@ const PatientDetails = ({ patients, setMessage }: Props) => {
           setOpenForm={setOpenForm}
           userId={id}
           setMessage={setMessage}
+          diagnosis={diagnosis}
           setPatientEntries={setPatientEntries}
         />
       )}
