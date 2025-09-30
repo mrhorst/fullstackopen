@@ -24,10 +24,14 @@ const PatientDetails = ({ patients, setMessage }: Props) => {
   const [openForm, setOpenForm] = useState(false);
   const patient = patients.find((p) => p.id === id);
   const [diagnosis, setDiagnosis] = useState<Diagnosis[]>([]);
+  const [patientEntries, setPatientEntries] = useState<Entry[]>([]);
 
   useEffect(() => {
     diagnosisService.getAll().then((data) => setDiagnosis(data));
-  }, []);
+    if (patient) {
+      setPatientEntries(patient.entries);
+    }
+  }, [patient]);
 
   const openEntryForm = () => {
     setOpenForm(!openForm);
@@ -63,11 +67,12 @@ const PatientDetails = ({ patients, setMessage }: Props) => {
           setOpenForm={setOpenForm}
           userId={id}
           setMessage={setMessage}
+          setPatientEntries={setPatientEntries}
         />
       )}
       <h3>entries</h3>
-      {patient.entries.length > 0 ? (
-        patient.entries.map((entry) => {
+      {patientEntries.length > 0 ? (
+        patientEntries.map((entry) => {
           return (
             <div
               style={{

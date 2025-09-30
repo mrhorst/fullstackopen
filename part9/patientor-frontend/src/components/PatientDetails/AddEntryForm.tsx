@@ -2,6 +2,7 @@ import { Dispatch, SetStateAction, SyntheticEvent, useState } from 'react';
 import patientService from '../../services/patients';
 import {
   Diagnosis,
+  Entry,
   HealthCheckEntryForm,
   HealthCheckRating,
 } from '../../types';
@@ -11,9 +12,15 @@ interface Props {
   setOpenForm: Dispatch<SetStateAction<boolean>>;
   userId: string;
   setMessage: Dispatch<SetStateAction<string | null>>;
+  setPatientEntries: Dispatch<SetStateAction<Entry[]>>;
 }
 
-export const AddEntryForm = ({ setOpenForm, userId, setMessage }: Props) => {
+export const AddEntryForm = ({
+  setOpenForm,
+  userId,
+  setMessage,
+  setPatientEntries,
+}: Props) => {
   const [description, setDescription] = useState('');
   const [date, setDate] = useState('');
   const [specialist, setSpecialist] = useState('');
@@ -36,7 +43,10 @@ export const AddEntryForm = ({ setOpenForm, userId, setMessage }: Props) => {
         healthCheckRating,
         diagnosisCodes: diagnosisCodesArray,
       };
-      await patientService.addEntry(userId, entry);
+      const newEntry = await patientService.addEntry(userId, entry);
+      // optimistic update on patient entries...
+      setPatientEntries((prev) => prev.concat(newEntry));
+      setOpenForm(false);
     } catch (error: unknown) {
       if (error instanceof AxiosError) {
         const errorName = error.response?.data.error.name;
