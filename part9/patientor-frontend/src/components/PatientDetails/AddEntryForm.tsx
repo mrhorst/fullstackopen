@@ -1,6 +1,10 @@
 import { Dispatch, SetStateAction, SyntheticEvent, useState } from 'react';
 import patientService from '../../services/patients';
-import { HealthCheckEntryForm, HealthCheckRating } from '../../types';
+import {
+  Diagnosis,
+  HealthCheckEntryForm,
+  HealthCheckRating,
+} from '../../types';
 import { AxiosError } from 'axios';
 
 interface Props {
@@ -15,6 +19,11 @@ export const AddEntryForm = ({ setOpenForm, userId, setMessage }: Props) => {
   const [specialist, setSpecialist] = useState('');
   const [healthCheckRating, setHealthCheckRating] =
     useState<HealthCheckRating>(0);
+  const [diagnosisCodesInput, setDiagnosisCodesInput] =
+    useState<Diagnosis['code']>('');
+  const [diagnosisCodesArray, setDiagnosisCodesArray] = useState<
+    Diagnosis['code'][]
+  >([]);
 
   const submitForm = async (e: SyntheticEvent) => {
     try {
@@ -25,6 +34,7 @@ export const AddEntryForm = ({ setOpenForm, userId, setMessage }: Props) => {
         date,
         specialist,
         healthCheckRating,
+        diagnosisCodes: diagnosisCodesArray,
       };
       await patientService.addEntry(userId, entry);
     } catch (error: unknown) {
@@ -42,6 +52,12 @@ export const AddEntryForm = ({ setOpenForm, userId, setMessage }: Props) => {
         }
       }
     }
+  };
+
+  const addDiagnosisCode = (e: SyntheticEvent) => {
+    e.preventDefault();
+    setDiagnosisCodesArray(diagnosisCodesArray.concat(diagnosisCodesInput));
+    setDiagnosisCodesInput('');
   };
 
   const closeForm = (e: SyntheticEvent) => {
@@ -98,6 +114,44 @@ export const AddEntryForm = ({ setOpenForm, userId, setMessage }: Props) => {
             value={healthCheckRating}
             onChange={(e) => setHealthCheckRating(Number(e.target.value))}
           />
+        </div>
+        <div>
+          <div>
+            <label htmlFor='diagnosisCodes'>diagnosis codes</label>
+          </div>
+          <input
+            name='diagnosisCodes'
+            value={diagnosisCodesInput}
+            onChange={(e) => setDiagnosisCodesInput(e.target.value)}
+          />
+          <button onClick={addDiagnosisCode}>add diagnosis code</button>
+        </div>
+        <div>
+          <ul
+            style={{
+              listStyle: 'none',
+              display: 'flex',
+              gap: '5px',
+              margin: '5px 0',
+              padding: 0,
+            }}
+          >
+            {diagnosisCodesArray.map((code) => {
+              return (
+                <li
+                  style={{
+                    border: '1px solid #CCC',
+                    padding: '8px',
+                    backgroundColor: '#999',
+                    borderRadius: '4px',
+                  }}
+                  key={code}
+                >
+                  {code}
+                </li>
+              );
+            })}
+          </ul>
         </div>
         <div
           style={{
