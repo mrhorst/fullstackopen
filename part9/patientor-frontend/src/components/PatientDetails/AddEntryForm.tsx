@@ -31,10 +31,14 @@ export const AddEntryForm = ({ setOpenForm, userId, setMessage }: Props) => {
       if (error instanceof AxiosError) {
         const errorName = error.response?.data.error.name;
         if (errorName === 'ZodError') {
-          const issue = error.response?.data.error.issues[0];
-          const message = issue.errors[0][0].message;
-          setMessage(`${message}`);
-          setTimeout(() => setMessage(null), 3000);
+          const firstIssue = error.response?.data.error.issues[0];
+          if (firstIssue.code === 'invalid_union') {
+            setMessage(firstIssue.errors[0][0].message);
+            setTimeout(() => setMessage(null), 3000);
+          } else if (firstIssue.code === 'too_small') {
+            setMessage(firstIssue.message);
+            setTimeout(() => setMessage(null), 3000);
+          }
         }
       }
     }
