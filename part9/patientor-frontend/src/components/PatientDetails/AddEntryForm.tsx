@@ -233,6 +233,7 @@ const OccupationalHealthcare = ({
         </div>
         <input
           name='sickStart'
+          type='date'
           value={sickLeave?.startDate ?? ''}
           onChange={(e) =>
             setSickLeave((prev) => ({
@@ -246,6 +247,7 @@ const OccupationalHealthcare = ({
         </div>
         <input
           name='sickEnd'
+          type='date'
           value={sickLeave?.endDate ?? ''}
           onChange={(e) =>
             setSickLeave((prev) => ({
@@ -280,6 +282,7 @@ const HospitalInput = ({
       </div>
       <input
         name='dischargeDate'
+        type='date'
         value={dischargeDate}
         onChange={(e) => setDischargeDate(e.target.value)}
       />
@@ -309,11 +312,17 @@ const HealthCheckInput = ({
       <div>
         <label htmlFor='healthCheckRating'>healthCheckRating</label>
       </div>
-      <input
+      <select
         name='healthCheckRating'
+        id='healthCheckRating'
         value={healthCheckRating}
         onChange={(e) => setHealthCheckRating(Number(e.target.value))}
-      />
+      >
+        <option value='0'>healthy</option>
+        <option value='1'>low risk</option>
+        <option value='2'>high risk</option>
+        <option value='3'>critical risk</option>
+      </select>
     </div>
   );
 };
@@ -362,6 +371,7 @@ const BaseEntryInput = ({
         <input
           name='date'
           value={date}
+          type='date'
           onChange={(e) => setDate(e.target.value)}
         />
       </div>
